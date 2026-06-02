@@ -15,6 +15,7 @@ import { TimerService } from '@core/services/timer.service';
 import { HistoryService } from '@core/services/history.service';
 import { SyncService } from '@core/api/sync.service';
 import { CATEGORY_LABELS, CATEGORY_COLOR_VAR } from '@core/data/exercises.data';
+import { TPipe } from '@core/i18n/t.pipe';
 import type { Recommendation } from '@core/models/models';
 
 type Step = 'exercise' | 'feedback';
@@ -22,7 +23,7 @@ type Step = 'exercise' | 'feedback';
 @Component({
   selector: 'bf-break-modal',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, DialogModule, ButtonModule],
+  imports: [FormsModule, DialogModule, ButtonModule, TPipe],
   template: `
     <p-dialog
       [visible]="open()"
@@ -34,7 +35,7 @@ type Step = 'exercise' | 'feedback';
       styleClass="break-dialog"
     >
       <ng-template #header>
-        <span class="break__title">{{ step() === 'exercise' ? 'Pause' : 'Wie war’s?' }}</span>
+        <span class="break__title">{{ (step() === 'exercise' ? 'break.title' : 'break.title.feedback') | t }}</span>
       </ng-template>
 
       @if (rec(); as r) {
@@ -45,44 +46,44 @@ type Step = 'exercise' | 'feedback';
               <i class="pi {{ r.exercise.icon }}"></i> {{ catLabel(r) }}
             </span>
             <h2 class="break__name">{{ r.exercise.name }}</h2>
-            <p class="break__reason muted">{{ r.reason }}</p>
+            <p class="break__reason muted">{{ r.reason | t }}</p>
           </div>
 
           <!-- amount stepper: buttons + real input on one row, caption BELOW -->
           <div class="reps">
             <div class="reps__row">
               <p-button icon="pi pi-minus" [rounded]="true" [text]="true"
-                        (onClick)="adjust(-1)" ariaLabel="weniger" />
+                        (onClick)="adjust(-1)" [ariaLabel]="'break.aria.less' | t" />
               <input
                 class="reps-counter"
                 type="text"
                 inputmode="numeric"
                 [ngModel]="amount()"
                 (ngModelChange)="onAmountInput($event)"
-                aria-label="Anzahl"
+                [attr.aria-label]="'break.aria.amount' | t"
               />
               <p-button icon="pi pi-plus" [rounded]="true" [text]="true"
-                        (onClick)="adjust(1)" ariaLabel="mehr" />
+                        (onClick)="adjust(1)" [ariaLabel]="'break.aria.more' | t" />
             </div>
             <p class="reps__caption muted">
-              {{ r.exercise.unit === 'reps' ? 'Wiederholungen' : 'Sekunden' }}
+              {{ (r.exercise.unit === 'reps' ? 'break.unit.reps' : 'break.unit.seconds') | t }}
             </p>
           </div>
 
-          <p-button label="Andere Übung" icon="pi pi-refresh" [text]="true"
+          <p-button [label]="'break.other' | t" icon="pi pi-refresh" [text]="true"
                     size="small" styleClass="break__shuffle" (onClick)="reshuffle()" />
         } @else {
           <!-- feedback -->
-          <p class="break__fb-q muted">War die Intensität passend?</p>
+          <p class="break__fb-q muted">{{ 'break.fb.question' | t }}</p>
           <div class="break__fb">
-            <p-button label="Zu leicht" [outlined]="true" (onClick)="finish(-1)" />
-            <p-button label="Passt" (onClick)="finish(0)" />
-            <p-button label="Zu hart" [outlined]="true" (onClick)="finish(1)" />
+            <p-button [label]="'break.fb.tooEasy' | t" [outlined]="true" (onClick)="finish(-1)" />
+            <p-button [label]="'break.fb.ok' | t" (onClick)="finish(0)" />
+            <p-button [label]="'break.fb.tooHard' | t" [outlined]="true" (onClick)="finish(1)" />
           </div>
         }
       } @else {
-        <p class="muted">Kein Übungspool aktiv. Aktiviere Übungen in den Einstellungen.</p>
-        <p-button label="Schließen" (onClick)="skip()" />
+        <p class="muted">{{ 'break.emptyPool' | t }}</p>
+        <p-button [label]="'break.close' | t" (onClick)="skip()" />
       }
 
       @if (step() === 'exercise' && rec()) {
@@ -90,16 +91,16 @@ type Step = 'exercise' | 'feedback';
           <div class="break__actions">
             <!-- row 1: postpone actions, equal weight -->
             <div class="break__row">
-              <p-button label="Meeting" icon="pi pi-calendar" severity="secondary"
+              <p-button [label]="'break.meeting' | t" icon="pi pi-calendar" severity="secondary"
                         [outlined]="true" styleClass="break__flex" (onClick)="meeting()" />
-              <p-button label="Snooze" icon="pi pi-clock" severity="secondary"
+              <p-button [label]="'break.snooze' | t" icon="pi pi-clock" severity="secondary"
                         [outlined]="true" styleClass="break__flex" (onClick)="snooze()" />
             </div>
             <!-- row 2: skip = discard intent, ghost-danger -->
-            <p-button label="Überspringen" [text]="true" severity="danger"
+            <p-button [label]="'break.skip' | t" [text]="true" severity="danger"
                       styleClass="break__skip" (onClick)="skip()" />
             <!-- primary: done -->
-            <p-button label="Erledigt" icon="pi pi-check" size="large"
+            <p-button [label]="'break.done' | t" icon="pi pi-check" size="large"
                       styleClass="break__done" (onClick)="done()" />
           </div>
         </ng-template>

@@ -11,18 +11,19 @@ import { Title } from '@angular/platform-browser';
 import { TimerService } from './core/services/timer.service';
 import { NotificationService } from './core/services/notification.service';
 import { BreakModalComponent } from './features/break/break-modal.component';
+import { TPipe } from './core/i18n/t.pipe';
 
 @Component({
   selector: 'bf-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, BreakModalComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, BreakModalComponent, TPipe],
   template: `
     <div class="app-shell dark">
       <!-- desktop / mouse: top pill nav -->
-      <nav class="top-nav" aria-label="Hauptnavigation">
-        <a routerLink="/timer" routerLinkActive="active"><i class="pi pi-clock"></i> Timer</a>
-        <a routerLink="/insights" routerLinkActive="active"><i class="pi pi-chart-bar"></i> Insights</a>
-        <a routerLink="/settings" routerLinkActive="active"><i class="pi pi-cog"></i> Einstellungen</a>
+      <nav class="top-nav" [attr.aria-label]="'a11y.nav' | t">
+        <a routerLink="/timer" routerLinkActive="active"><i class="pi pi-clock"></i> {{ 'nav.timer' | t }}</a>
+        <a routerLink="/insights" routerLinkActive="active"><i class="pi pi-chart-bar"></i> {{ 'nav.insights' | t }}</a>
+        <a routerLink="/settings" routerLinkActive="active"><i class="pi pi-cog"></i> {{ 'nav.settings' | t }}</a>
       </nav>
 
       <main class="app-main">
@@ -30,10 +31,10 @@ import { BreakModalComponent } from './features/break/break-modal.component';
       </main>
 
       <!-- phone + touch: bottom nav -->
-      <nav class="bottom-nav" aria-label="Hauptnavigation">
-        <a routerLink="/timer" routerLinkActive="active"><i class="pi pi-clock"></i><span>Timer</span></a>
-        <a routerLink="/insights" routerLinkActive="active"><i class="pi pi-chart-bar"></i><span>Insights</span></a>
-        <a routerLink="/settings" routerLinkActive="active"><i class="pi pi-cog"></i><span>Settings</span></a>
+      <nav class="bottom-nav" [attr.aria-label]="'a11y.nav' | t">
+        <a routerLink="/timer" routerLinkActive="active"><i class="pi pi-clock"></i><span>{{ 'nav.timer' | t }}</span></a>
+        <a routerLink="/insights" routerLinkActive="active"><i class="pi pi-chart-bar"></i><span>{{ 'nav.insights' | t }}</span></a>
+        <a routerLink="/settings" routerLinkActive="active"><i class="pi pi-cog"></i><span>{{ 'nav.settings' | t }}</span></a>
       </nav>
 
       <!-- global break modal, opened when a focus interval elapses -->

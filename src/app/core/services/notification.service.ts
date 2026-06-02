@@ -1,5 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { SettingsService } from './settings.service';
+import { TranslationService } from '../i18n/translation.service';
 
 /**
  * NotificationService — wraps the Web Notifications API with graceful
@@ -11,6 +12,7 @@ import { SettingsService } from './settings.service';
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
   private settings = inject(SettingsService);
+  private i18n = inject(TranslationService);
 
   readonly permission = signal<NotificationPermission>(
     typeof Notification !== 'undefined' ? Notification.permission : 'denied',
@@ -28,13 +30,13 @@ export class NotificationService {
 
   fireBreakDue(): void {
     this.titleAlert.set(true);
-    this.send('Zeit für eine Pause', 'Beweg dich kurz — los geht\u2019s.');
+    this.send(this.i18n.t('notif.breakDue.title'), this.i18n.t('notif.breakDue.body'));
     this.beep();
   }
 
   fireBreakOver(): void {
     this.titleAlert.set(true);
-    this.send('Pause vorbei', 'Zurück an die Arbeit.');
+    this.send(this.i18n.t('notif.breakOver.title'), this.i18n.t('notif.breakOver.body'));
   }
 
   clearTitleAlert(): void {

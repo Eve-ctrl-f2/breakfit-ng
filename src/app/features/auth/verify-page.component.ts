@@ -5,21 +5,23 @@ import { ButtonModule } from 'primeng/button';
 import { InputOtpModule } from 'primeng/inputotp';
 import { MessageModule } from 'primeng/message';
 import { AuthService } from '@core/api/auth.service';
+import { TranslationService } from '@core/i18n/translation.service';
+import { TPipe } from '@core/i18n/t.pipe';
 
 @Component({
   selector: 'bf-verify-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, ButtonModule, InputOtpModule, MessageModule],
+  imports: [FormsModule, ButtonModule, InputOtpModule, MessageModule, TPipe],
   template: `
     <section class="container auth">
-      <h1 class="auth__title mono">Code eingeben</h1>
-      <p class="muted auth__sub">Wir haben einen Code an {{ email() }} gesendet.</p>
+      <h1 class="auth__title mono">{{ 'auth.verify.title' | t }}</h1>
+      <p class="muted auth__sub">{{ 'auth.verify.sub' | t:{ email: email() } }}</p>
 
       <p-inputotp [(ngModel)]="code" [length]="6" [integerOnly]="true" />
 
       @if (error()) { <p-message severity="error">{{ error() }}</p-message> }
 
-      <p-button label="Bestätigen" icon="pi pi-check" [loading]="loading()"
+      <p-button [label]="'auth.confirm' | t" icon="pi pi-check" [loading]="loading()"
                 [disabled]="code().length < 6" (onClick)="submit()" styleClass="auth__btn" />
     </section>
   `,
@@ -33,6 +35,7 @@ import { AuthService } from '@core/api/auth.service';
 export class VerifyPageComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
+  private i18n = inject(TranslationService);
 
   /** bound from ?email= via withComponentInputBinding() */
   readonly email = input('');
@@ -47,7 +50,7 @@ export class VerifyPageComponent {
       await this.auth.verify(this.email(), this.code());
       await this.router.navigate(['/timer']);
     } catch (e: any) {
-      this.error.set(e?.message ?? 'Code ungültig.');
+      this.error.set(e?.message ?? this.i18n.t('auth.error.code'));
     } finally {
       this.loading.set(false);
     }

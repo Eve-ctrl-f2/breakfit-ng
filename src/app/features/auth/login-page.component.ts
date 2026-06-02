@@ -5,32 +5,34 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 import { AuthService } from '@core/api/auth.service';
+import { TranslationService } from '@core/i18n/translation.service';
+import { TPipe } from '@core/i18n/t.pipe';
 import { environment } from '@env/environment';
 
 @Component({
   selector: 'bf-login-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, InputTextModule, ButtonModule, MessageModule],
+  imports: [FormsModule, InputTextModule, ButtonModule, MessageModule, TPipe],
   template: `
     <section class="container auth">
       <h1 class="auth__title mono">BreakFit</h1>
-      <p class="muted auth__sub">Melde dich an, um deinen Verlauf zu sichern.</p>
+      <p class="muted auth__sub">{{ 'auth.login.sub' | t }}</p>
 
       <label class="auth__field">
-        <span class="muted">E-Mail</span>
+        <span class="muted">{{ 'auth.email' | t }}</span>
         <input pInputText type="email" [(ngModel)]="email" placeholder="du@example.com"
                autocomplete="email" />
       </label>
 
       @if (error()) { <p-message severity="error">{{ error() }}</p-message> }
 
-      <p-button label="Code anfordern" icon="pi pi-envelope" [loading]="loading()"
+      <p-button [label]="'auth.requestCode' | t" icon="pi pi-envelope" [loading]="loading()"
                 [disabled]="!email()" (onClick)="submit()" styleClass="auth__btn" />
 
       @if (devHint) {
-        <p class="muted auth__hint">Dev: Code wird in der Server-Konsole geloggt.</p>
+        <p class="muted auth__hint">{{ 'auth.devHint' | t }}</p>
       } @else {
-        <p class="muted auth__hint">Prüfe auch deinen Spam-Ordner.</p>
+        <p class="muted auth__hint">{{ 'auth.spamHint' | t }}</p>
       }
     </section>
   `,
@@ -47,6 +49,7 @@ import { environment } from '@env/environment';
 export class LoginPageComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
+  private i18n = inject(TranslationService);
 
   readonly email = signal('');
   readonly loading = signal(false);
@@ -60,7 +63,7 @@ export class LoginPageComponent {
       await this.auth.requestCode(this.email());
       await this.router.navigate(['/auth/verify'], { queryParams: { email: this.email() } });
     } catch (e: any) {
-      this.error.set(e?.message ?? 'Anmeldung fehlgeschlagen.');
+      this.error.set(e?.message ?? this.i18n.t('auth.error.login'));
     } finally {
       this.loading.set(false);
     }

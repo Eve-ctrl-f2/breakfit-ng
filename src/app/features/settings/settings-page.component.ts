@@ -13,40 +13,43 @@ import { environment } from '@env/environment';
 import { SettingsService } from '@core/services/settings.service';
 import { ExercisePoolService } from '@core/services/exercise-pool.service';
 import { NotificationService } from '@core/services/notification.service';
+import { TranslationService } from '@core/i18n/translation.service';
+import { TPipe } from '@core/i18n/t.pipe';
 import { CATEGORY_LABELS, CATEGORY_COLOR_VAR } from '@core/data/exercises.data';
 import type { Difficulty, SelectionMode } from '@core/models/models';
+import type { Locale } from '@core/i18n/translations';
 
 @Component({
   selector: 'bf-settings-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     FormsModule, CardModule, SliderModule, SelectButtonModule,
-    ToggleSwitchModule, SelectModule, ButtonModule, TagModule, RouterLink,
+    ToggleSwitchModule, SelectModule, ButtonModule, TagModule, RouterLink, TPipe,
   ],
   template: `
     <section class="container">
-      <p class="section-title">Einstellungen</p>
+      <p class="section-title">{{ 'settings.title' | t }}</p>
 
       <!-- Timer -->
       <p-card styleClass="set-card">
-        <p class="set__h">Timer</p>
+        <p class="set__h">{{ 'settings.timer' | t }}</p>
         <label class="set__row">
-          <span>Fokus <b class="mono">{{ st().focusMinutes }} Min</b></span>
+          <span>{{ 'settings.focus' | t }} <b class="mono">{{ st().focusMinutes }} {{ 'settings.min' | t }}</b></span>
           <p-slider [ngModel]="st().focusMinutes" (ngModelChange)="patch({ focusMinutes: $event })"
                     [min]="5" [max]="60" [step]="5" />
         </label>
         <label class="set__row">
-          <span>Pause <b class="mono">{{ st().breakMinutes }} Min</b></span>
+          <span>{{ 'settings.break' | t }} <b class="mono">{{ st().breakMinutes }} {{ 'settings.min' | t }}</b></span>
           <p-slider [ngModel]="st().breakMinutes" (ngModelChange)="patch({ breakMinutes: $event })"
                     [min]="1" [max]="15" [step]="1" />
         </label>
         <label class="set__row">
-          <span>Lange Pause alle <b class="mono">{{ st().longBreakEvery }}</b></span>
+          <span>{{ 'settings.longBreakEvery' | t }} <b class="mono">{{ st().longBreakEvery }}</b></span>
           <p-slider [ngModel]="st().longBreakEvery" (ngModelChange)="patch({ longBreakEvery: $event })"
                     [min]="2" [max]="8" [step]="1" />
         </label>
         <div class="set__toggle">
-          <span>Nächsten Fokus automatisch starten</span>
+          <span>{{ 'settings.autoStart' | t }}</span>
           <p-toggleswitch [ngModel]="st().autoStartNextFocus"
                           (ngModelChange)="patch({ autoStartNextFocus: $event })" />
         </div>
@@ -54,8 +57,8 @@ import type { Difficulty, SelectionMode } from '@core/models/models';
 
       <!-- Difficulty -->
       <p-card styleClass="set-card">
-        <p class="set__h">Schwierigkeit</p>
-        <p-selectbutton [options]="difficulties" optionLabel="label" optionValue="value"
+        <p class="set__h">{{ 'settings.difficulty' | t }}</p>
+        <p-selectbutton [options]="difficulties()" optionLabel="label" optionValue="value"
                         [allowEmpty]="false"
                         [ngModel]="st().difficulty"
                         (ngModelChange)="patch({ difficulty: $event })" />
@@ -63,17 +66,20 @@ import type { Difficulty, SelectionMode } from '@core/models/models';
 
       <!-- Selection mode -->
       <p-card styleClass="set-card">
-        <p class="set__h">Auswahlmodus</p>
-        <p-selectbutton [options]="modes" optionLabel="label" optionValue="value"
+        <p class="set__h">{{ 'settings.mode' | t }}</p>
+        <p-selectbutton [options]="modes()" optionLabel="label" optionValue="value"
                         [allowEmpty]="false"
                         [ngModel]="st().selectionMode"
                         (ngModelChange)="patch({ selectionMode: $event })" />
-        <p class="muted set__hint">{{ modeHint() }}</p>
+        <p class="muted set__hint">{{ modeHintKey() | t }}</p>
       </p-card>
 
       <!-- Exercise pool -->
       <p-card styleClass="set-card">
-        <p class="set__h">Übungspool <span class="muted">({{ pool.active().length }} aktiv)</span></p>
+        <p class="set__h">
+          {{ 'settings.pool' | t }}
+          <span class="muted">{{ 'settings.poolActive' | t:{ count: pool.active().length } }}</span>
+        </p>
         @for (ex of pool.all(); track ex.id) {
           <div class="ex">
             <span class="ex__cat" [style.background]="catColor(ex.category)"></span>
@@ -86,43 +92,50 @@ import type { Difficulty, SelectionMode } from '@core/models/models';
 
       <!-- Notifications -->
       <p-card styleClass="set-card">
-        <p class="set__h">Benachrichtigungen</p>
+        <p class="set__h">{{ 'settings.notif' | t }}</p>
         <div class="set__toggle">
-          <span>Push-Hinweise</span>
+          <span>{{ 'settings.push' | t }}</span>
           <p-toggleswitch [ngModel]="st().notificationsEnabled"
                           (ngModelChange)="onNotifToggle($event)" />
         </div>
         <div class="set__toggle">
-          <span>Ton</span>
+          <span>{{ 'settings.sound' | t }}</span>
           <p-toggleswitch [ngModel]="st().soundEnabled"
                           (ngModelChange)="patch({ soundEnabled: $event })" />
         </div>
         @if (notify.permission() !== 'granted') {
-          <p class="muted set__hint">
-            Hintergrund-Hinweise funktionieren nur als installierte App (Home-Bildschirm).
-          </p>
+          <p class="muted set__hint">{{ 'settings.notifHint' | t }}</p>
         }
+      </p-card>
+
+      <!-- Language -->
+      <p-card styleClass="set-card">
+        <p class="set__h">{{ 'settings.language' | t }}</p>
+        <p-selectbutton [options]="i18n.supported" optionLabel="label" optionValue="value"
+                        [allowEmpty]="false"
+                        [ngModel]="i18n.locale()"
+                        (ngModelChange)="setLocale($event)" />
       </p-card>
 
       <!-- Cloud sync — only when flag is on -->
       @if (cloudEnabled) {
         <p-card styleClass="set-card">
-          <p class="set__h">Cloud-Sync</p>
-          <p class="muted set__hint">Melde dich an, um deinen Verlauf zu sichern.</p>
-          <p-button label="Anmelden" icon="pi pi-cloud" routerLink="/auth/login" />
+          <p class="set__h">{{ 'settings.cloud' | t }}</p>
+          <p class="muted set__hint">{{ 'settings.cloudHint' | t }}</p>
+          <p-button [label]="'settings.signin' | t" icon="pi pi-cloud" routerLink="/auth/login" />
         </p-card>
       }
 
       <!-- Feedback -->
       <p-card styleClass="set-card">
-        <p class="set__h">Feedback</p>
-        <p-button label="Feedback senden" icon="pi pi-envelope" [outlined]="true"
+        <p class="set__h">{{ 'settings.feedback' | t }}</p>
+        <p-button [label]="'settings.sendFeedback' | t" icon="pi pi-envelope" [outlined]="true"
                   (onClick)="sendFeedback()" />
       </p-card>
 
       <!-- About -->
       <footer class="about muted">
-        BreakFit v{{ version }} · Build {{ buildDate() }}
+        {{ 'settings.about' | t:{ version: version, date: buildDate() } }}
       </footer>
     </section>
   `,
@@ -165,36 +178,42 @@ export class SettingsPageComponent {
   readonly settings = inject(SettingsService);
   readonly pool = inject(ExercisePoolService);
   readonly notify = inject(NotificationService);
+  readonly i18n = inject(TranslationService);
 
   readonly st = this.settings.settings;
   readonly cloudEnabled = environment.cloudEnabled;
   readonly version = environment.appVersion;
 
-  readonly difficulties: { label: string; value: Difficulty }[] = [
-    { label: 'Leicht', value: 'leicht' },
-    { label: 'Mittel', value: 'mittel' },
-    { label: 'Fortgeschritten', value: 'fortgeschritten' },
-  ];
+  // Option labels are computed so they re-translate on locale change.
+  readonly difficulties = computed<{ label: string; value: Difficulty }[]>(() => [
+    { label: this.i18n.t('settings.diff.leicht'), value: 'leicht' },
+    { label: this.i18n.t('settings.diff.mittel'), value: 'mittel' },
+    { label: this.i18n.t('settings.diff.fortgeschritten'), value: 'fortgeschritten' },
+  ]);
 
-  readonly modes: { label: string; value: SelectionMode }[] = [
-    { label: 'Smart', value: 'adaptive' },
-    { label: 'Zufall', value: 'random' },
-    { label: 'Rotation', value: 'rotation' },
-  ];
+  readonly modes = computed<{ label: string; value: SelectionMode }[]>(() => [
+    { label: this.i18n.t('settings.mode.adaptive'), value: 'adaptive' },
+    { label: this.i18n.t('settings.mode.random'), value: 'random' },
+    { label: this.i18n.t('settings.mode.rotation'), value: 'rotation' },
+  ]);
 
-  readonly modeHint = computed(() => ({
-    adaptive: 'Passt Übungen an dein Level und deine Historie an.',
-    random: 'Wählt zufällig aus dem Pool.',
-    rotation: 'Spielt die am längsten ungenutzten Übungen.',
-  }[this.st().selectionMode]));
+  modeHintKey(): string {
+    return `settings.mode.hint.${this.st().selectionMode}`;
+  }
 
   buildDate(): string {
-    return new Date(environment.buildDate).toLocaleDateString('de-DE');
+    const loc = this.i18n.locale() === 'en' ? 'en-GB' : 'de-DE';
+    return new Date(environment.buildDate).toLocaleDateString(loc);
   }
 
   patch = this.settings.patch.bind(this.settings);
   cat = (c: keyof typeof CATEGORY_LABELS) => CATEGORY_LABELS[c];
   catColor = (c: keyof typeof CATEGORY_COLOR_VAR) => CATEGORY_COLOR_VAR[c];
+
+  setLocale(locale: Locale): void {
+    this.i18n.setLocale(locale);
+    this.patch({ locale });
+  }
 
   async onNotifToggle(enabled: boolean): Promise<void> {
     if (enabled && this.notify.permission() !== 'granted') {

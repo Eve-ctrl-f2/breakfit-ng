@@ -4,6 +4,8 @@ import { MeterGroupModule } from 'primeng/metergroup';
 import { ButtonModule } from 'primeng/button';
 import { HistoryService } from '@core/services/history.service';
 import { CATEGORY_LABELS, CATEGORY_COLOR_VAR } from '@core/data/exercises.data';
+import { TPipe } from '@core/i18n/t.pipe';
+import { TranslationService } from '@core/i18n/translation.service';
 import type { ExerciseCategory } from '@core/models/models';
 
 const WEEKDAYS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
@@ -11,40 +13,40 @@ const WEEKDAYS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 @Component({
   selector: 'bf-insights-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CardModule, MeterGroupModule, ButtonModule],
+  imports: [CardModule, MeterGroupModule, ButtonModule, TPipe],
   template: `
     <section class="container">
-      <p class="section-title">Insights</p>
+      <p class="section-title">{{ 'insights.title' | t }}</p>
 
       <!-- headline stats -->
       <div class="stats">
         <div class="stat">
           <span class="stat__num mono">{{ s().completedBreaks }}</span>
-          <span class="stat__lbl muted">Pausen gemacht</span>
+          <span class="stat__lbl muted">{{ 'insights.stat.done' | t }}</span>
         </div>
         <div class="stat">
           <span class="stat__num mono" style="color: var(--streak)">{{ s().currentStreakDays }}</span>
-          <span class="stat__lbl muted">Tage Streak</span>
+          <span class="stat__lbl muted">{{ 'insights.stat.streak' | t }}</span>
         </div>
         <div class="stat">
           <span class="stat__num mono">{{ ratePct() }}%</span>
-          <span class="stat__lbl muted">Abschlussrate</span>
+          <span class="stat__lbl muted">{{ 'insights.stat.rate' | t }}</span>
         </div>
       </div>
 
       <!-- category distribution -->
       <p-card styleClass="ins-card">
-        <p class="section-title">Muskelgruppen</p>
+        <p class="section-title">{{ 'insights.muscle' | t }}</p>
         @if (meter().length) {
           <p-metergroup [value]="meter()" />
         } @else {
-          <p class="muted">Noch keine Daten.</p>
+          <p class="muted">{{ 'insights.noData' | t }}</p>
         }
       </p-card>
 
       <!-- weekday activity -->
       <p-card styleClass="ins-card">
-        <p class="section-title">Wochenaktivität</p>
+        <p class="section-title">{{ 'insights.week' | t }}</p>
         <div class="bars">
           @for (d of weekdayBars(); track d.label) {
             <div class="bar">
@@ -60,23 +62,23 @@ const WEEKDAYS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
       <!-- recent -->
       <p-card styleClass="ins-card">
         <div class="ins-card__head">
-          <p class="section-title" style="margin:0">Verlauf</p>
+          <p class="section-title" style="margin:0">{{ 'insights.history' | t }}</p>
           @if (history.entries().length) {
-            <p-button label="Löschen" [text]="true" size="small" severity="danger"
+            <p-button [label]="'insights.delete' | t" [text]="true" size="small" severity="danger"
                       (onClick)="history.clear()" />
           }
         </div>
         @for (e of recent(); track e.id) {
           <div class="hist">
             <span class="hist__dot" [class.hist__dot--skip]="e.outcome !== 'completed'"></span>
-            <span class="hist__name">{{ e.exerciseName ?? 'Übersprungen' }}</span>
+            <span class="hist__name">{{ e.exerciseName ?? ('insights.skipped' | t) }}</span>
             @if (e.outcome === 'completed') {
               <span class="hist__amt muted mono">{{ e.amountDone }}</span>
             }
             <span class="hist__time muted">{{ time(e.startedAt) }}</span>
           </div>
         } @empty {
-          <p class="muted">Noch nichts protokolliert.</p>
+          <p class="muted">{{ 'insights.empty' | t }}</p>
         }
       </p-card>
     </section>
@@ -105,6 +107,7 @@ const WEEKDAYS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 })
 export class InsightsPageComponent {
   readonly history = inject(HistoryService);
+  private i18n = inject(TranslationService);
   readonly s = this.history.summary;
 
   readonly ratePct = computed(() => Math.round(this.s().completionRate * 100));
@@ -129,7 +132,8 @@ export class InsightsPageComponent {
   readonly recent = computed(() => this.history.entries().slice(0, 12));
 
   time(iso: string): string {
-    return new Date(iso).toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    const loc = this.i18n.locale() === 'en' ? 'en-GB' : 'de-DE';
+    return new Date(iso).toLocaleTimeString(loc, { hour: '2-digit', minute: '2-digit' });
   }
 }
 

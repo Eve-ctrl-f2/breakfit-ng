@@ -189,3 +189,9 @@ input, select, textarea { font-size: 16px; }
    dark-on-dark "invisible label" failure mode. */
 .p-card .p-card-body,
 .p-card .p-card-content { color: var(--text-1); }
+
+/* Safety net: PrimeNG card bodies must use the light text color on our dark
+   surfaces regardless of how the dark token scheme resolves. Prevents the
+   dark-on-dark "invisible label" failure mode. */
+.p-card .p-card-body,
+.p-card .p-card-content { color: var(--text-1); }

@@ -5,16 +5,17 @@ import { TagModule } from 'primeng/tag';
 import { FormsModule } from '@angular/forms';
 import { TimerService } from '@core/services/timer.service';
 import { SettingsService } from '@core/services/settings.service';
+import { TPipe } from '@core/i18n/t.pipe';
 
 @Component({
   selector: 'bf-timer-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ButtonModule, KnobModule, TagModule, FormsModule],
+  imports: [ButtonModule, KnobModule, TagModule, FormsModule, TPipe],
   template: `
     <section class="container timer">
       <header class="timer__head">
-        <p class="section-title">{{ phaseLabel() }}</p>
-        <p class="muted timer__sub">{{ subLabel() }}</p>
+        <p class="section-title">{{ phaseKey() | t }}</p>
+        <p class="muted timer__sub">{{ subKey() | t }}</p>
       </header>
 
       <div class="timer__dial">
@@ -32,7 +33,7 @@ import { SettingsService } from '@core/services/settings.service';
         <div class="timer__readout mono">{{ timer.mmss() }}</div>
       </div>
 
-      <div class="timer__cycles" aria-label="Abgeschlossene Zyklen">
+      <div class="timer__cycles" [attr.aria-label]="'a11y.cycles' | t">
         @for (i of cyclePips(); track i) {
           <span class="pip" [class.pip--done]="i < state().cyclesCompleted"></span>
         }
@@ -40,19 +41,20 @@ import { SettingsService } from '@core/services/settings.service';
 
       <div class="timer__actions">
         @if (state().phase === 'idle') {
-          <p-button label="Fokus starten" icon="pi pi-play" size="large" (onClick)="timer.startFocus()" />
+          <p-button [label]="'timer.start' | t" icon="pi pi-play" size="large" (onClick)="timer.startFocus()" />
         } @else if (state().running) {
-          <p-button label="Pause" icon="pi pi-pause" severity="secondary" size="large" (onClick)="timer.pause()" />
-          <p-button label="Stop" icon="pi pi-stop" [text]="true" severity="danger" (onClick)="timer.reset()" />
+          <p-button [label]="'timer.pause' | t" icon="pi pi-pause" size="large"
+                    severity="secondary" styleClass="timer__pause" (onClick)="timer.pause()" />
+          <p-button [label]="'timer.stop' | t" icon="pi pi-stop" [text]="true" severity="danger" (onClick)="timer.reset()" />
         } @else {
-          <p-button label="Weiter" icon="pi pi-play" size="large" (onClick)="timer.resume()" />
-          <p-button label="Stop" icon="pi pi-stop" [text]="true" severity="danger" (onClick)="timer.reset()" />
+          <p-button [label]="'timer.resume' | t" icon="pi pi-play" size="large" (onClick)="timer.resume()" />
+          <p-button [label]="'timer.stop' | t" icon="pi pi-stop" [text]="true" severity="danger" (onClick)="timer.reset()" />
         }
       </div>
 
       @if (state().phase === 'idle') {
         <p class="muted timer__hint">
-          {{ settings.settings().focusMinutes }} Min Fokus · {{ settings.settings().breakMinutes }} Min Pause
+          {{ 'timer.hint' | t:{ focus: settings.settings().focusMinutes, break: settings.settings().breakMinutes } }}
         </p>
       }
     </section>
@@ -70,6 +72,15 @@ import { SettingsService } from '@core/services/settings.service';
     .pip--done { background: var(--accent); }
     .timer__actions { display: flex; gap: var(--s-3); align-items: center; flex-wrap: wrap; justify-content: center; }
     .timer__hint { font-size: 0.85rem; }
+
+    :host ::ng-deep .timer__pause .p-button-label,
+    :host ::ng-deep .timer__pause .p-button-icon {
+      color: var(--text-1);
+    }
+    :host ::ng-deep .timer__pause:hover {
+      background: var(--surface-3);
+      border-color: var(--border-3);
+    }
   `],
 })
 export class TimerPageComponent {
@@ -83,19 +94,19 @@ export class TimerPageComponent {
     Array.from({ length: this.settings.settings().longBreakEvery }, (_, i) => i),
   );
 
-  phaseLabel(): string {
+  phaseKey(): string {
     return {
-      idle: 'Bereit',
-      focus: 'Fokus',
-      break: 'Pause',
-      longBreak: 'Lange Pause',
+      idle: 'timer.phase.idle',
+      focus: 'timer.phase.focus',
+      break: 'timer.phase.break',
+      longBreak: 'timer.phase.longBreak',
     }[this.state().phase];
   }
 
-  subLabel(): string {
+  subKey(): string {
     const s = this.state();
-    if (s.phase === 'idle') return 'Starte einen Fokus-Block.';
-    if (s.phase === 'focus') return 'Konzentriert bleiben.';
-    return 'Zeit für eine Übung.';
+    if (s.phase === 'idle') return 'timer.sub.idle';
+    if (s.phase === 'focus') return 'timer.sub.focus';
+    return 'timer.sub.break';
   }
 }

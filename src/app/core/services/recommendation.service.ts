@@ -48,12 +48,12 @@ export class RecommendationService {
 
     if (mode === 'random') {
       const ex = active[Math.floor(Math.random() * active.length)];
-      return this.toRecommendation(ex, 'Zufällig ausgewählt', 1);
+      return this.toRecommendation(ex, 'reco.reason.random', 1);
     }
 
     if (mode === 'rotation') {
       const ex = this.leastRecentlyUsed(active, recent);
-      return this.toRecommendation(ex, 'Länger nicht gemacht', 1);
+      return this.toRecommendation(ex, 'reco.reason.rotation', 1);
     }
 
     // adaptive
@@ -134,10 +134,10 @@ export class RecommendationService {
   }
 
   private explain(diffMatch: number, mixBoost: number, recency: number): string {
-    if (recency > 0.6) return 'Etwas Abwechslung';
-    if (mixBoost > 0.7) return 'Diese Muskelgruppe kam zu kurz';
-    if (diffMatch > 0.85) return 'Passt zu deinem Level';
-    return 'Empfohlen für dich';
+    if (recency > 0.6) return 'reco.reason.variety';
+    if (mixBoost > 0.7) return 'reco.reason.mix';
+    if (diffMatch > 0.85) return 'reco.reason.level';
+    return 'reco.reason.default';
   }
 }
 

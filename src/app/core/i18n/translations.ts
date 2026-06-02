@@ -140,6 +140,37 @@ export const translations: Record<Locale, Record<string, string>> = {
     // common / plural sample
     'common.day_one': 'Tag',
     'common.day_other': 'Tage',
+    // presets
+    'presets.title': 'Vorlagen',
+    'presets.apply': 'Anwenden',
+    'presets.saveCurrentBtn': 'Aktuelle Einstellungen speichern',
+    'presets.namePlaceholder': 'Name der Vorlage',
+
+    // exercises
+    'exercises.addBtn': 'Übung hinzufügen',
+    'exercises.addTitle': 'Neue Übung',
+    'exercises.name': 'Name',
+    'exercises.namePlaceholder': 'z. B. Wandsitze',
+    'exercises.category': 'Kategorie',
+    'exercises.difficulty': 'Schwierigkeit',
+    'exercises.unit': 'Einheit',
+    'exercises.amount': 'Standardanzahl',
+    'exercises.reps': 'Wdh.',
+    'exercises.seconds': 'Sek.',
+    'exercises.errName': 'Name darf nicht leer sein.',
+    'exercises.errAmount': 'Mindestens 1 eingeben.',
+    'exercises.errMax': 'Max. 20 eigene Übungen erreicht.',
+
+    // goal
+    'goal.title': 'Wochenziel',
+    'goal.label': 'Pausen diese Woche',
+    'goal.target': 'Ziel',
+    'goal.done': 'Ziel erreicht',
+
+    // common additions
+    'common.save': 'Speichern',
+    'common.cancel': 'Abbrechen',
+    'common.delete': 'Löschen',
   },
 
   en: {
@@ -250,5 +281,36 @@ export const translations: Record<Locale, Record<string, string>> = {
 
     'common.day_one': 'day',
     'common.day_other': 'days',
+    // presets
+    'presets.title': 'Presets',
+    'presets.apply': 'Apply',
+    'presets.saveCurrentBtn': 'Save current settings',
+    'presets.namePlaceholder': 'Preset name',
+
+    // exercises
+    'exercises.addBtn': 'Add exercise',
+    'exercises.addTitle': 'New exercise',
+    'exercises.name': 'Name',
+    'exercises.namePlaceholder': 'e.g. Wall sit',
+    'exercises.category': 'Category',
+    'exercises.difficulty': 'Difficulty',
+    'exercises.unit': 'Unit',
+    'exercises.amount': 'Default amount',
+    'exercises.reps': 'Reps',
+    'exercises.seconds': 'Sec.',
+    'exercises.errName': 'Name must not be empty.',
+    'exercises.errAmount': 'Enter at least 1.',
+    'exercises.errMax': 'Max. 20 custom exercises reached.',
+
+    // goal
+    'goal.title': 'Weekly goal',
+    'goal.label': 'Breaks this week',
+    'goal.target': 'Target',
+    'goal.done': 'Goal reached',
+
+    // common additions
+    'common.save': 'Save',
+    'common.cancel': 'Cancel',
+    'common.delete': 'Delete',
   },
 };

@@ -5,6 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { HistoryService } from '@core/services/history.service';
 import { CATEGORY_LABELS, CATEGORY_COLOR_VAR } from '@core/data/exercises.data';
 import { TPipe } from '@core/i18n/t.pipe';
+import { GoalCardComponent } from './goal-card.component';
 import { TranslationService } from '@core/i18n/translation.service';
 import type { ExerciseCategory } from '@core/models/models';
 
@@ -13,7 +14,7 @@ const WEEKDAYS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 @Component({
   selector: 'bf-insights-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CardModule, MeterGroupModule, ButtonModule, TPipe],
+  imports: [CardModule, MeterGroupModule, ButtonModule, TPipe, GoalCardComponent],
   template: `
     <section class="container">
       <p class="section-title">{{ 'insights.title' | t }}</p>
@@ -33,6 +34,12 @@ const WEEKDAYS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
           <span class="stat__lbl muted">{{ 'insights.stat.rate' | t }}</span>
         </div>
       </div>
+
+      <!-- weekly goal -->
+      <p-card styleClass="ins-card">
+        <p class="section-title">{{ 'goal.title' | t }}</p>
+        <bf-goal-card />
+      </p-card>
 
       <!-- category distribution -->
       <p-card styleClass="ins-card">

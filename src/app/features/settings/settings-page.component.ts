@@ -15,6 +15,8 @@ import { ExercisePoolService } from '@core/services/exercise-pool.service';
 import { NotificationService } from '@core/services/notification.service';
 import { TranslationService } from '@core/i18n/translation.service';
 import { TPipe } from '@core/i18n/t.pipe';
+import { PresetCardComponent } from './preset-card.component';
+import { CustomExerciseFormComponent } from './custom-exercise-form.component';
 import { CATEGORY_LABELS, CATEGORY_COLOR_VAR } from '@core/data/exercises.data';
 import type { Difficulty, SelectionMode } from '@core/models/models';
 import type { Locale } from '@core/i18n/translations';
@@ -25,6 +27,7 @@ import type { Locale } from '@core/i18n/translations';
   imports: [
     FormsModule, CardModule, SliderModule, SelectButtonModule,
     ToggleSwitchModule, SelectModule, ButtonModule, TagModule, RouterLink, TPipe,
+    PresetCardComponent, CustomExerciseFormComponent,
   ],
   template: `
     <section class="container">
@@ -53,6 +56,12 @@ import type { Locale } from '@core/i18n/translations';
           <p-toggleswitch [ngModel]="st().autoStartNextFocus"
                           (ngModelChange)="patch({ autoStartNextFocus: $event })" />
         </div>
+      </p-card>
+
+      <!-- Presets -->
+      <p-card styleClass="set-card">
+        <p class="set__h">{{ 'presets.title' | t }}</p>
+        <bf-preset-card />
       </p-card>
 
       <!-- Difficulty -->
@@ -88,6 +97,7 @@ import type { Locale } from '@core/i18n/translations';
             <p-toggleswitch [ngModel]="ex.enabled" (ngModelChange)="pool.toggle(ex.id, $event)" />
           </div>
         }
+        <bf-custom-exercise-form />
       </p-card>
 
       <!-- Notifications -->

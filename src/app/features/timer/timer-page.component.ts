@@ -21,14 +21,9 @@ import { TPipe } from '@core/i18n/t.pipe';
       <div class="timer__dial">
         <p-knob
           [ngModel]="dialValue()"
-          [max]="100"
-          [min]="0"
-          [size]="240"
-          [strokeWidth]="6"
-          [readonly]="true"
-          [showValue]="false"
-          valueColor="var(--accent)"
-          rangeColor="var(--border-2)"
+          [max]="100" [min]="0" [size]="240" [strokeWidth]="6"
+          [readonly]="true" [showValue]="false"
+          valueColor="var(--accent)" rangeColor="var(--border-2)"
         />
         <div class="timer__readout mono">{{ timer.mmss() }}</div>
       </div>
@@ -72,37 +67,22 @@ import { TPipe } from '@core/i18n/t.pipe';
     .pip--done { background: var(--accent); }
     .timer__actions { display: flex; gap: var(--s-3); align-items: center; flex-wrap: wrap; justify-content: center; }
     .timer__hint { font-size: 0.85rem; }
-
     :host ::ng-deep .timer__pause .p-button-label,
-    :host ::ng-deep .timer__pause .p-button-icon {
-      color: var(--text-1);
-    }
-    :host ::ng-deep .timer__pause:hover {
-      background: var(--surface-3);
-      border-color: var(--border-3);
-    }
+    :host ::ng-deep .timer__pause .p-button-icon { color: var(--text-1); }
+    :host ::ng-deep .timer__pause:hover { background: var(--surface-3); border-color: var(--border-3); }
   `],
 })
 export class TimerPageComponent {
   readonly timer = inject(TimerService);
   readonly settings = inject(SettingsService);
-
   readonly state = this.timer.state;
   readonly dialValue = computed(() => Math.round(this.timer.progress() * 100));
-
   readonly cyclePips = computed(() =>
     Array.from({ length: this.settings.settings().longBreakEvery }, (_, i) => i),
   );
-
   phaseKey(): string {
-    return {
-      idle: 'timer.phase.idle',
-      focus: 'timer.phase.focus',
-      break: 'timer.phase.break',
-      longBreak: 'timer.phase.longBreak',
-    }[this.state().phase];
+    return { idle:'timer.phase.idle', focus:'timer.phase.focus', break:'timer.phase.break', longBreak:'timer.phase.longBreak' }[this.state().phase];
   }
-
   subKey(): string {
     const s = this.state();
     if (s.phase === 'idle') return 'timer.sub.idle';

@@ -1,0 +1,191 @@
+/* =========================================================================
+   BreakFit — global tokens & shell. Component look comes from the PrimeNG
+   preset (theme/breakfit-preset.ts); this file holds layout primitives,
+   the design-token CSS variables shared across feature components, and the
+   responsive app shell.
+   ========================================================================= */
+
+:root {
+  /* surfaces & borders */
+  --bg: #08080c;
+  --surface-1: #0c0c11;
+  --surface-2: #121217;
+  --surface-3: #1d1d24;
+  --border-1: #1d1d24;
+  --border-2: #26262e;
+  --border-3: #34343f;
+
+  /* brand + semantic */
+  --accent: #c8f060;
+  --accent-08: rgba(200, 240, 96, 0.08);
+  --accent-15: rgba(200, 240, 96, 0.15);
+  --accent-25: rgba(200, 240, 96, 0.25);
+  --accent-40: rgba(200, 240, 96, 0.4);
+  --warn: #f5c466;
+  --danger: #f06868;
+  --streak: #ff8a3d;
+
+  /* per-category accents */
+  --cat-kraft: #ff8a3d;
+  --cat-cardio: #f06868;
+  --cat-core: #c8f060;
+  --cat-dehnen: #6ad0f0;
+  --cat-schultern: #b388ff;
+  --cat-ruecken: #f5c466;
+  --cat-beine: #7df0a8;
+
+  /* text */
+  --text-1: #f3f3f7;
+  --text-2: #9a9aa6;
+  --text-3: #6a6a76;
+
+  /* spacing scale */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 16px;
+  --s-4: 24px;
+  --s-5: 40px;
+  --s-6: 64px;
+
+  --container-max: 760px;
+  --radius: 16px;
+  --nav-h: 64px;
+
+  --font-display: 'Space Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text-1);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* iOS: inputs must be >=16px to stop Safari auto-zoom on focus */
+input, select, textarea { font-size: 16px; }
+
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--s-4) var(--s-3);
+}
+
+.muted { color: var(--text-2); }
+.mono { font-family: var(--font-display); }
+
+.section-title {
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  margin: 0 0 var(--s-3);
+}
+
+/* ---- app shell ---- */
+.app-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+.app-main { flex: 1 1 auto; }
+
+/* desktop / tablet-with-mouse: top pill nav */
+.top-nav {
+  display: flex;
+  gap: var(--s-2);
+  justify-content: center;
+  padding: var(--s-3);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-1);
+}
+.top-nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  color: var(--text-2);
+  text-decoration: none;
+  font-size: 0.9rem;
+  border: 1px solid transparent;
+  transition: background .15s, color .15s, border-color .15s;
+}
+.top-nav a:hover { color: var(--text-1); background: var(--surface-2); }
+.top-nav a.active {
+  color: var(--accent);
+  background: var(--accent-08);
+  border-color: var(--accent-25);
+}
+
+/* phone + touch only: bottom nav (Material-3 Navigation Bar pattern) */
+.bottom-nav { display: none; }
+
+@media (max-width: 767px) and (pointer: coarse) {
+  .top-nav { display: none; }
+  .app-main { padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom)); }
+  .bottom-nav {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    position: fixed;
+    inset: auto 0 0 0;
+    z-index: 30;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border-1);
+    padding-bottom: env(safe-area-inset-bottom);
+    height: calc(var(--nav-h) + env(safe-area-inset-bottom));
+  }
+  .bottom-nav a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    color: var(--text-2);
+    text-decoration: none;
+    font-size: 0.68rem;
+    padding-top: 6px;
+  }
+  .bottom-nav a i { font-size: 1.25rem; }
+  .bottom-nav a.active { color: var(--accent); }
+}
+
+/* reps counter (carried over from React build — invisible-input bug fix) */
+.reps-counter {
+  width: 84px;
+  text-align: center;
+  background: var(--surface-1);
+  color: var(--text-1);
+  border: 1px solid var(--border-3);
+  border-radius: 12px;
+  padding: 0.6rem 0.4rem;
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  caret-color: var(--accent);
+  transition: border-color .15s;
+}
+.reps-counter:hover { border-color: var(--accent-25); }
+.reps-counter:focus { outline: none; border-color: var(--accent); }
+
+.stack { display: flex; flex-direction: column; gap: var(--s-3); }
+.row { display: flex; align-items: center; gap: var(--s-3); }
+
+/* Safety net: PrimeNG card bodies must use the light text color on our dark
+   surfaces regardless of how the dark token scheme resolves. Prevents the
+   dark-on-dark "invisible label" failure mode. */
+.p-card .p-card-body,
+.p-card .p-card-content { color: var(--text-1); }

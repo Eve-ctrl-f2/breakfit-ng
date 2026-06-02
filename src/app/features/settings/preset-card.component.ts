@@ -47,7 +47,7 @@ import type { FocusPreset } from '@core/services/preset.service';
           <p-button [label]="'common.save' | t" size="small" icon="pi pi-check"
                     [disabled]="!saveName.trim()" (onClick)="savePreset()" />
           <p-button [label]="'common.cancel' | t" size="small" severity="secondary"
-                    [text]="true" (onClick)="saving.set(false)" />
+                    [outlined]="true" (onClick)="saving.set(false)" />
         </div>
       }
     </div>

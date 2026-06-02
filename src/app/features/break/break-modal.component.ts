@@ -13,12 +13,13 @@ import { ButtonModule } from 'primeng/button';
 import { RecommendationService } from '@core/services/recommendation.service';
 import { TimerService } from '@core/services/timer.service';
 import { HistoryService } from '@core/services/history.service';
+import { MeetingService, MEETING_PRESETS } from '@core/services/meeting.service';
 import { SyncService } from '@core/api/sync.service';
 import { CATEGORY_LABELS, CATEGORY_COLOR_VAR } from '@core/data/exercises.data';
 import { TPipe } from '@core/i18n/t.pipe';
 import type { Recommendation } from '@core/models/models';
 
-type Step = 'exercise' | 'feedback';
+type Step = 'exercise' | 'feedback' | 'meeting';
 
 @Component({
   selector: 'bf-break-modal',
@@ -35,7 +36,7 @@ type Step = 'exercise' | 'feedback';
       styleClass="break-dialog"
     >
       <ng-template #header>
-        <span class="break__title">{{ (step() === 'exercise' ? 'break.title' : 'break.title.feedback') | t }}</span>
+        <span class="break__title">{{ headerKey() | t }}</span>
       </ng-template>
 
       @if (rec(); as r) {
@@ -72,7 +73,7 @@ type Step = 'exercise' | 'feedback';
 
           <p-button [label]="'break.other' | t" icon="pi pi-refresh" [text]="true"
                     size="small" styleClass="break__shuffle" (onClick)="reshuffle()" />
-        } @else {
+        } @else if (step() === 'feedback') {
           <!-- feedback -->
           <p class="break__fb-q muted">{{ 'break.fb.question' | t }}</p>
           <div class="break__fb">
@@ -80,6 +81,15 @@ type Step = 'exercise' | 'feedback';
             <p-button [label]="'break.fb.ok' | t" (onClick)="finish(0)" />
             <p-button [label]="'break.fb.tooHard' | t" [outlined]="true" (onClick)="finish(1)" />
           </div>
+        } @else if (step() === 'meeting') {
+          <p class="break__fb-q muted">{{ 'meeting.choose' | t }}</p>
+          <div class="break__meeting">
+            @for (m of meetingPresets; track m) {
+              <p-button [label]="m + ' min'" [outlined]="true" (onClick)="startMeeting(m)" />
+            }
+          </div>
+          <p-button [label]="'common.cancel' | t" severity="secondary" [text]="true"
+                    size="small" styleClass="break__shuffle" (onClick)="step.set('exercise')" />
         }
       } @else {
         <p class="muted">{{ 'break.emptyPool' | t }}</p>
@@ -124,6 +134,7 @@ type Step = 'exercise' | 'feedback';
 
     .break__fb-q { text-align: center; }
     .break__fb { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--s-2); }
+    .break__meeting { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-2); }
 
     .break__actions { display: flex; flex-direction: column; gap: var(--s-2); width: 100%; }
     .break__row { display: flex; gap: var(--s-2); }
@@ -137,7 +148,10 @@ export class BreakModalComponent {
   private reco = inject(RecommendationService);
   private timer = inject(TimerService);
   private history = inject(HistoryService);
+  private meetingSvc = inject(MeetingService);
   private sync = inject(SyncService);
+
+  readonly meetingPresets = MEETING_PRESETS;
 
   /** controlled by the app shell */
   readonly open = input(false);
@@ -219,15 +233,25 @@ export class BreakModalComponent {
       feedback: null,
       startedAt: this.startedAt,
     });
-    // short re-focus before nudging again
     this.timer.startFocus();
     this.close();
   }
 
   meeting(): void {
-    // suppress reminders for a meeting block, then resume focus
+    this.step.set('meeting');
+  }
+
+  startMeeting(minutes: number): void {
+    this.meetingSvc.start(minutes);
     this.timer.startFocus();
     this.close();
+  }
+
+  headerKey(): string {
+    const s = this.step();
+    if (s === 'feedback') return 'break.title.feedback';
+    if (s === 'meeting') return 'meeting.title';
+    return 'break.title';
   }
 
   private close(): void {

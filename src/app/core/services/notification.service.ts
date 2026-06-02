@@ -1,6 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { SettingsService } from './settings.service';
 import { TranslationService } from '../i18n/translation.service';
+import { MeetingService } from './meeting.service';
 
 /**
  * NotificationService — wraps the Web Notifications API with graceful
@@ -13,6 +14,7 @@ import { TranslationService } from '../i18n/translation.service';
 export class NotificationService {
   private settings = inject(SettingsService);
   private i18n = inject(TranslationService);
+  private meeting = inject(MeetingService);
 
   readonly permission = signal<NotificationPermission>(
     typeof Notification !== 'undefined' ? Notification.permission : 'denied',
@@ -45,6 +47,7 @@ export class NotificationService {
 
   private send(title: string, body: string): void {
     if (!this.settings.settings().notificationsEnabled) return;
+    if (this.meeting.isActive()) return; // suppressed during a meeting
     if (typeof Notification === 'undefined' || this.permission() !== 'granted') return;
     try {
       // No emoji in system notifications — text + icon asset only.

@@ -10,6 +10,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { TimerService } from './core/services/timer.service';
 import { NotificationService } from './core/services/notification.service';
+import { MeetingService } from './core/services/meeting.service';
 import { BreakModalComponent } from './features/break/break-modal.component';
 import { TPipe } from './core/i18n/t.pipe';
 
@@ -48,14 +49,22 @@ import { TPipe } from './core/i18n/t.pipe';
 export class App {
   private timer = inject(TimerService);
   private notify = inject(NotificationService);
+  private meeting = inject(MeetingService);
   private titleSvc = inject(Title);
 
   readonly breakOpen = signal(false);
 
   constructor() {
-    // open the break modal whenever the timer signals a break is due
+    // open the break modal whenever the timer signals a break is due,
+    // UNLESS a meeting is active — then silently restart focus.
     effect(() => {
-      if (this.timer.breakDue() > 0) this.breakOpen.set(true);
+      if (this.timer.breakDue() > 0) {
+        if (this.meeting.isActive()) {
+          this.timer.startFocus();
+        } else {
+          this.breakOpen.set(true);
+        }
+      }
     });
 
     // tab-title alert cue (🔔 lives here, not in system notifications)

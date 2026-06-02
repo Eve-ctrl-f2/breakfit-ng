@@ -93,6 +93,12 @@ import type { Locale } from '@core/i18n/translations';
           <div class="ex">
             <span class="ex__cat" [style.background]="catColor(ex.category)"></span>
             <span class="ex__name">{{ ex.name }}</span>
+            @if (ex.custom) {
+              <button class="ex__del" (click)="pool.removeCustom(ex.id)"
+                      [attr.aria-label]="'common.delete' | t">
+                <i class="pi pi-trash"></i>
+              </button>
+            }
             <p-tag [value]="cat(ex.category)" severity="secondary" styleClass="ex__tag" />
             <p-toggleswitch [ngModel]="ex.enabled" (ngModelChange)="pool.toggle(ex.id, $event)" />
           </div>
@@ -167,6 +173,9 @@ import type { Locale } from '@core/i18n/translations';
     .ex:last-child { border-bottom: none; }
     .ex__cat { width: 6px; height: 28px; border-radius: 3px; flex: 0 0 auto; }
     .ex__name { flex: 1 1 auto; font-size: 0.92rem; color: var(--text-1); }
+    .ex__del { background: none; border: none; cursor: pointer; color: var(--text-3);
+               padding: 4px; border-radius: 6px; display: flex; flex: 0 0 auto; }
+    .ex__del:hover { color: var(--danger); background: rgba(240,104,104,0.12); }
     .about { text-align: center; padding: var(--s-4) 0; font-size: 0.8rem; }
 
     /* SelectButton: keep BOTH selected and unselected labels readable on dark */

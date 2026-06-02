@@ -171,6 +171,21 @@ export const translations: Record<Locale, Record<string, string>> = {
     'common.save': 'Speichern',
     'common.cancel': 'Abbrechen',
     'common.delete': 'Löschen',
+    // meeting mode
+    'meeting.title': 'Meeting',
+    'meeting.choose': 'Wie lange dauert dein Meeting?',
+    'meeting.active': 'Meeting aktiv',
+    'meeting.end': 'Beenden',
+
+    // milestones
+    'milestones.title': 'Meilensteine',
+    'milestones.streak3': '3-Tage-Streak',
+    'milestones.streak7': '7-Tage-Streak',
+    'milestones.streak30': '30-Tage-Streak',
+    'milestones.total10': '10 Pausen',
+    'milestones.total50': '50 Pausen',
+    'milestones.total100': '100 Pausen',
+    'milestones.weekly1': 'Wochenziel erreicht',
   },
 
   en: {
@@ -312,5 +327,20 @@ export const translations: Record<Locale, Record<string, string>> = {
     'common.save': 'Save',
     'common.cancel': 'Cancel',
     'common.delete': 'Delete',
+    // meeting mode
+    'meeting.title': 'Meeting',
+    'meeting.choose': 'How long is your meeting?',
+    'meeting.active': 'Meeting active',
+    'meeting.end': 'End',
+
+    // milestones
+    'milestones.title': 'Milestones',
+    'milestones.streak3': '3-day streak',
+    'milestones.streak7': '7-day streak',
+    'milestones.streak30': '30-day streak',
+    'milestones.total10': '10 breaks',
+    'milestones.total50': '50 breaks',
+    'milestones.total100': '100 breaks',
+    'milestones.weekly1': 'Weekly goal hit',
   },
 };

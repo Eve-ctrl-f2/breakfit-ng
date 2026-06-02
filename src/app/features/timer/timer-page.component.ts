@@ -5,6 +5,7 @@ import { TagModule } from 'primeng/tag';
 import { FormsModule } from '@angular/forms';
 import { TimerService } from '@core/services/timer.service';
 import { SettingsService } from '@core/services/settings.service';
+import { MeetingService } from '@core/services/meeting.service';
 import { TPipe } from '@core/i18n/t.pipe';
 
 @Component({
@@ -13,6 +14,15 @@ import { TPipe } from '@core/i18n/t.pipe';
   imports: [ButtonModule, KnobModule, TagModule, FormsModule, TPipe],
   template: `
     <section class="container timer">
+      @if (meeting.isActive()) {
+        <div class="meeting-strip">
+          <span class="meeting-strip__txt">
+            <i class="pi pi-calendar"></i> {{ 'meeting.active' | t }} · {{ meeting.remainingLabel() }}
+          </span>
+          <button class="meeting-strip__end" (click)="meeting.end()">{{ 'meeting.end' | t }}</button>
+        </div>
+      }
+
       <header class="timer__head">
         <p class="section-title">{{ phaseKey() | t }}</p>
         <p class="muted timer__sub">{{ subKey() | t }}</p>
@@ -67,6 +77,15 @@ import { TPipe } from '@core/i18n/t.pipe';
     .pip--done { background: var(--accent); }
     .timer__actions { display: flex; gap: var(--s-3); align-items: center; flex-wrap: wrap; justify-content: center; }
     .timer__hint { font-size: 0.85rem; }
+    .meeting-strip { display: flex; align-items: center; justify-content: space-between;
+                     gap: var(--s-2); width: 100%; background: var(--accent-08);
+                     border: 1px solid var(--accent-25); border-radius: 12px;
+                     padding: 10px 14px; }
+    .meeting-strip__txt { color: var(--accent); font-size: 0.9rem; display: inline-flex;
+                          align-items: center; gap: 8px; }
+    .meeting-strip__end { background: none; border: 1px solid var(--accent-25); color: var(--accent);
+                          border-radius: 8px; padding: 4px 10px; cursor: pointer; font-size: 0.82rem; }
+    .meeting-strip__end:hover { background: var(--accent-15); }
     :host ::ng-deep .timer__pause .p-button-label,
     :host ::ng-deep .timer__pause .p-button-icon { color: var(--text-1); }
     :host ::ng-deep .timer__pause:hover { background: var(--surface-3); border-color: var(--border-3); }
@@ -75,6 +94,7 @@ import { TPipe } from '@core/i18n/t.pipe';
 export class TimerPageComponent {
   readonly timer = inject(TimerService);
   readonly settings = inject(SettingsService);
+  readonly meeting = inject(MeetingService);
   readonly state = this.timer.state;
   readonly dialValue = computed(() => Math.round(this.timer.progress() * 100));
   readonly cyclePips = computed(() =>

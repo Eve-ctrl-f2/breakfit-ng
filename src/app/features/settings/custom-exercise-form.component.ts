@@ -111,24 +111,6 @@ const EMPTY_FORM: Form = {
         </div>
       </div>
     }
-
-    <!-- custom exercises list with delete -->
-    @if (pool.all().some(e => e.custom)) {
-      <div class="custom-list">
-        @for (ex of pool.all(); track ex.id) {
-          @if (ex.custom) {
-            <div class="custom-item">
-              <span class="custom-item__dot" [style.background]="catColors[ex.category]"></span>
-              <span class="custom-item__name">{{ ex.name }}</span>
-              <span class="muted custom-item__meta">{{ ex.defaultAmount }} {{ ex.unit === 'reps' ? ('exercises.reps' | t) : ('exercises.seconds' | t) }}</span>
-              <button class="custom-item__del" (click)="pool.removeCustom(ex.id)" [attr.aria-label]="'common.delete' | t">
-                <i class="pi pi-trash"></i>
-              </button>
-            </div>
-          }
-        }
-      </div>
-    }
   `,
   styles: [`
     .exf { background: var(--surface-1); border: 1px solid var(--border-2); border-radius: var(--radius);
@@ -142,17 +124,6 @@ const EMPTY_FORM: Form = {
     :host ::ng-deep .exf__num { width: 80px; }
     .exf__actions { display: flex; gap: var(--s-2); justify-content: flex-end; }
     .exf__err { color: var(--danger); font-size: 0.82rem; margin: 0; }
-
-    .custom-list { margin-top: var(--s-3); display: flex; flex-direction: column; gap: 2px; }
-    .custom-item { display: flex; align-items: center; gap: var(--s-2); padding: 8px 0;
-                   border-bottom: 1px solid var(--border-1); }
-    .custom-item:last-child { border-bottom: none; }
-    .custom-item__dot { width: 6px; height: 24px; border-radius: 3px; flex: 0 0 auto; }
-    .custom-item__name { flex: 1 1 auto; font-size: 0.9rem; color: var(--text-1); }
-    .custom-item__meta { font-size: 0.78rem; }
-    .custom-item__del { background: none; border: none; cursor: pointer; color: var(--text-3);
-                        padding: 4px; border-radius: 6px; display: flex; }
-    .custom-item__del:hover { color: var(--danger); background: rgba(240,104,104,0.1); }
   `],
 })
 export class CustomExerciseFormComponent {
@@ -164,12 +135,6 @@ export class CustomExerciseFormComponent {
 
   private readonly _form = signal<Form>({ ...EMPTY_FORM });
   readonly form = this._form.asReadonly();
-
-  readonly catColors: Record<ExerciseCategory, string> = {
-    kraft: 'var(--cat-kraft)', cardio: 'var(--cat-cardio)', core: 'var(--cat-core)',
-    dehnen: 'var(--cat-dehnen)', schultern: 'var(--cat-schultern)',
-    ruecken: 'var(--cat-ruecken)', beine: 'var(--cat-beine)',
-  };
 
   readonly catOptions = Object.entries(CATEGORY_LABELS).map(([v, l]) => ({
     label: l,

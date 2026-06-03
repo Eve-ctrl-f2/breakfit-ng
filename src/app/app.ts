@@ -12,12 +12,14 @@ import { TimerService } from './core/services/timer.service';
 import { NotificationService } from './core/services/notification.service';
 import { SyncCoordinatorService } from './core/services/sync-coordinator.service';
 import { BreakModalComponent } from './features/break/break-modal.component';
+import { OnboardingComponent } from './features/onboarding/onboarding.component';
+import { OnboardingService } from './core/services/onboarding.service';
 import { TPipe } from './core/i18n/t.pipe';
 
 @Component({
   selector: 'bf-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, BreakModalComponent, TPipe],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, BreakModalComponent, OnboardingComponent, TPipe],
   template: `
     <div class="app-shell dark">
       <!-- desktop / mouse: top pill nav -->
@@ -43,6 +45,11 @@ import { TPipe } from './core/i18n/t.pipe';
         [open]="breakOpen()"
         (closed)="breakOpen.set(false)"
       />
+
+      <!-- first-run onboarding overlay -->
+      @if (onboarding.shouldShow()) {
+        <bf-onboarding />
+      }
     </div>
   `,
 })
@@ -50,6 +57,7 @@ export class App {
   private timer = inject(TimerService);
   private notify = inject(NotificationService);
   private sync = inject(SyncCoordinatorService);
+  readonly onboarding = inject(OnboardingService);
   private titleSvc = inject(Title);
 
   readonly breakOpen = signal(false);

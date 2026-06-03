@@ -134,6 +134,10 @@ Base URL = `apiBase`. All protected routes require `Authorization: Bearer <token
 | POST | `/me/delete` | ✓ | `{ confirmation: "KONTO LÖSCHEN" }` | `{ ok: true }` |
 | POST | `/sync/history` | ✓ | `HistoryEntry` | `{ id, syncState: "synced" }` (idempotent) |
 | GET | `/sync/history` | ✓ | – | `HistoryEntry[]` (newest first) |
+| POST | `/push/subscribe` | ✓ | `PushSubscription` | `{ ok: true }` (upsert by endpoint) |
+| POST | `/push/unsubscribe` | ✓ | `{ endpoint }` | `{ ok: true }` |
+| POST | `/push/test` | ✓ | – | `{ sent }` (Web Push to user's devices) |
+| POST | `/telemetry/error` | – | `{ message, ua, version }` | `204` (fire-and-forget) |
 
 Validation is Zod-based at the route boundary; 401 on missing/expired session,
 400 on schema failure. `KONTO LÖSCHEN` is a verbatim security literal — **not**

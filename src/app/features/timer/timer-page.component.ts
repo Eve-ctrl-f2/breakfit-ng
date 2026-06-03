@@ -1,11 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { KnobModule } from 'primeng/knob';
 import { TagModule } from 'primeng/tag';
 import { FormsModule } from '@angular/forms';
 import { TimerService } from '@core/services/timer.service';
 import { SettingsService } from '@core/services/settings.service';
-import { MeetingService } from '@core/services/meeting.service';
+import { MeetingService, MEETING_PRESETS } from '@core/services/meeting.service';
 import { TPipe } from '@core/i18n/t.pipe';
 
 @Component({
@@ -62,6 +62,26 @@ import { TPipe } from '@core/i18n/t.pipe';
           {{ 'timer.hint' | t:{ focus: settings.settings().focusMinutes, break: settings.settings().breakMinutes } }}
         </p>
       }
+
+      <!-- proactive meeting control (also reachable from the break modal) -->
+      @if (!meeting.isActive()) {
+        @if (!meetingMenu()) {
+          <p-button [label]="'meeting.start' | t" icon="pi pi-calendar"
+                    [outlined]="true" severity="secondary"
+                    styleClass="timer__meeting-trigger" (onClick)="meetingMenu.set(true)" />
+        } @else {
+          <div class="timer__meeting">
+            <span class="timer__meeting-q">{{ 'meeting.choose' | t }}</span>
+            <div class="timer__meeting-grid">
+              @for (m of meetingPresets; track m) {
+                <p-button [label]="m + ' min'" [outlined]="true" (onClick)="startMeeting(m)" />
+              }
+            </div>
+            <p-button [label]="'common.cancel' | t" [text]="true" severity="secondary"
+                      styleClass="timer__meeting-cancel" (onClick)="meetingMenu.set(false)" />
+          </div>
+        }
+      }
     </section>
   `,
   styles: [`
@@ -86,6 +106,15 @@ import { TPipe } from '@core/i18n/t.pipe';
     .meeting-strip__end { background: none; border: 1px solid var(--accent-25); color: var(--accent);
                           border-radius: 8px; padding: 4px 10px; cursor: pointer; font-size: 0.82rem; }
     .meeting-strip__end:hover { background: var(--accent-15); }
+    .timer__meeting { display: flex; flex-direction: column; align-items: center; gap: var(--s-3);
+                      width: 100%; max-width: 320px; padding: var(--s-3);
+                      background: var(--surface-1); border: 1px solid var(--border-2);
+                      border-radius: var(--radius); }
+    .timer__meeting-q { font-size: 0.85rem; color: var(--text-1); text-align: center; }
+    .timer__meeting-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-2); width: 100%; }
+    :host ::ng-deep .timer__meeting-grid .p-button { width: 100%; }
+    :host ::ng-deep .timer__meeting-cancel { align-self: center; }
+    :host ::ng-deep .timer__meeting-trigger { margin-top: var(--s-1); }
     :host ::ng-deep .timer__pause .p-button-label,
     :host ::ng-deep .timer__pause .p-button-icon { color: var(--text-1); }
     :host ::ng-deep .timer__pause:hover { background: var(--surface-3); border-color: var(--border-3); }
@@ -96,6 +125,14 @@ export class TimerPageComponent {
   readonly settings = inject(SettingsService);
   readonly meeting = inject(MeetingService);
   readonly state = this.timer.state;
+
+  readonly meetingPresets = MEETING_PRESETS;
+  readonly meetingMenu = signal(false);
+
+  startMeeting(minutes: number): void {
+    this.meeting.start(minutes);
+    this.meetingMenu.set(false);
+  }
   readonly dialValue = computed(() => Math.round(this.timer.progress() * 100));
   readonly cyclePips = computed(() =>
     Array.from({ length: this.settings.settings().longBreakEvery }, (_, i) => i),

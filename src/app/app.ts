@@ -10,7 +10,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { TimerService } from './core/services/timer.service';
 import { NotificationService } from './core/services/notification.service';
-import { MeetingService } from './core/services/meeting.service';
+import { SyncCoordinatorService } from './core/services/sync-coordinator.service';
 import { BreakModalComponent } from './features/break/break-modal.component';
 import { TPipe } from './core/i18n/t.pipe';
 
@@ -49,22 +49,21 @@ import { TPipe } from './core/i18n/t.pipe';
 export class App {
   private timer = inject(TimerService);
   private notify = inject(NotificationService);
-  private meeting = inject(MeetingService);
+  private sync = inject(SyncCoordinatorService);
   private titleSvc = inject(Title);
 
   readonly breakOpen = signal(false);
 
   constructor() {
-    // open the break modal whenever the timer signals a break is due,
-    // UNLESS a meeting is active — then silently restart focus.
+    // kick off offline-first sync (no-op unless cloud is enabled + authed)
+    this.sync.init();
+    // breakDue is a pure UI pulse from the timer (break + meeting logic lives
+    // in TimerService). This effect ONLY opens the modal — it never writes
+    // timer state, so there is no read/write feedback cycle (the previous
+    // version read _state via isLongBreakDue() AND wrote it via startBreak(),
+    // which self-triggered forever and froze the app).
     effect(() => {
-      if (this.timer.breakDue() > 0) {
-        if (this.meeting.isActive()) {
-          this.timer.startFocus();
-        } else {
-          this.breakOpen.set(true);
-        }
-      }
+      if (this.timer.breakDue() > 0) this.breakOpen.set(true);
     });
 
     // tab-title alert cue (🔔 lives here, not in system notifications)

@@ -6,7 +6,7 @@ import { sha256 } from '../server.js';
 
 interface Deps {
   sql: Sql;
-  redis: Redis;
+  redis: Redis | null;
 }
 
 const requestSchema = z.object({ email: z.string().email() });
@@ -27,7 +27,7 @@ export async function registerAuthRoutes(app: FastifyInstance, { sql, redis }: D
     await sql`
       INSERT INTO login_codes (email, code_hash, expires_at)
       VALUES (${email}, ${codeHash}, now() + interval '10 minutes')`;
-    await redis.set(`code:${email}`, codeHash, 'EX', CODE_TTL_SECONDS);
+    if (redis) await redis.set(`code:${email}`, codeHash, 'EX', CODE_TTL_SECONDS);
 
     // In production: enqueue an email. In dev: log it so testers can read it.
     if (process.env.NODE_ENV !== 'production') {

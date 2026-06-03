@@ -9,4 +9,6 @@ export const environment: Environment = {
   cloudEnabled: false,
   apiBase: 'http://localhost:8080',
   feedbackEmail: 'feedback@breakfit.app',
+  sentryDsn: '',
+  vapidPublicKey: '',
 };

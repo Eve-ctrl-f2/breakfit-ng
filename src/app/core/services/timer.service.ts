@@ -1,6 +1,7 @@
 import { Injectable, NgZone, computed, inject, signal } from '@angular/core';
 import { SettingsService } from './settings.service';
 import { NotificationService } from './notification.service';
+import { MeetingService } from './meeting.service';
 import { INITIAL_TIMER_STATE, type TimerState, type TimerPhase } from '../models/timer-state';
 
 /**
@@ -18,6 +19,7 @@ import { INITIAL_TIMER_STATE, type TimerState, type TimerPhase } from '../models
 export class TimerService {
   private settings = inject(SettingsService);
   private notify = inject(NotificationService);
+  private meeting = inject(MeetingService);
   private zone = inject(NgZone);
 
   private readonly _state = signal<TimerState>(INITIAL_TIMER_STATE);
@@ -127,12 +129,19 @@ export class TimerService {
     const phase = this._state().phase;
     this.stopTicking();
     if (phase === 'focus') {
-      this._state.update((s) => ({ ...s, running: false }));
-      this.notify.fireBreakDue();
-      this._breakDue.update((n) => n + 1); // signal the UI to open the break modal
+      this._state.update((s) => ({ ...s, running: false, remaining: 0 }));
+      if (this.meeting.isActive()) {
+        // in a meeting: no nag, no break — just re-focus silently
+        this.startFocus();
+      } else {
+        this.notify.fireBreakDue();
+        // start the break countdown right away (decoupled from the modal)
+        this.startBreak(this.isLongBreakDue());
+        // pulse: tells the shell to open the exercise modal (UI-only signal)
+        this._breakDue.update((n) => n + 1);
+      }
     } else {
-      // break finished on its own
-      this._state.update((s) => ({ ...s, running: false }));
+      this._state.update((s) => ({ ...s, running: false, remaining: 0 }));
       this.notify.fireBreakOver();
     }
   }

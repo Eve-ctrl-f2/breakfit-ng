@@ -7,10 +7,16 @@ import Redis from 'ioredis';
 import { registerAuthRoutes } from './modules/auth.routes.js';
 import { registerSyncRoutes } from './modules/sync.routes.js';
 import { registerMeRoutes } from './modules/me.routes.js';
+import { registerTelemetryRoutes } from './modules/telemetry.routes.js';
+import { registerPushRoutes, initWebPush } from './modules/push.routes.js';
+import { startReminderScheduler } from './modules/reminder-scheduler.js';
 
 const PORT = Number(process.env.PORT ?? 8080);
 const sql = postgres(process.env.DATABASE_URL ?? 'postgres://localhost/breakfit');
-const redis = new Redis(process.env.REDIS_URL ?? 'redis://localhost:6379');
+// Redis is OPTIONAL — login codes are persisted in Postgres (login_codes); Redis
+// is only an extra fast-path cache. Skip it entirely when REDIS_URL is unset so
+// deploys need nothing but Postgres.
+const redis = process.env.REDIS_URL ? new Redis(process.env.REDIS_URL) : null;
 
 const app = Fastify({ logger: true });
 
@@ -54,6 +60,15 @@ app.get('/health', async () => ({ ok: true }));
 await registerAuthRoutes(app, { sql, redis });
 await registerSyncRoutes(app, { sql });
 await registerMeRoutes(app, { sql });
+await registerTelemetryRoutes(app);
+await registerPushRoutes(app, { sql });
+
+if (initWebPush()) {
+  app.log.info('Web Push enabled (VAPID configured)');
+  startReminderScheduler(sql, app.log);
+} else {
+  app.log.warn('Web Push disabled — set VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY');
+}
 
 app
   .listen({ port: PORT, host: '0.0.0.0' })

@@ -17,8 +17,42 @@ export class SyncService {
   private idb = inject(IdbService);
   private auth = inject(AuthService);
 
+  private autoSyncStarted = false;
+
+  /**
+   * Cross-platform auto-sync. Native Background Sync (registration.sync) only
+   * exists on Chromium, so we rely on universally-supported triggers that work
+   * on iOS/Safari and Firefox too:
+   *   - app start (called from the app initializer)
+   *   - the `online` event (connectivity restored)
+   *   - `visibilitychange` -> visible (user returned to the tab/PWA)
+   * Where the Background Sync API IS available we additionally register a sync
+   * tag as an enhancement (flushes even if the app is later closed).
+   */
+  enableAutoSync(): void {
+    if (this.autoSyncStarted || !environment.cloudEnabled) return;
+    this.autoSyncStarted = true;
+
+    const flush = () => { void this.push(); };
+
+    window.addEventListener('online', flush);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') flush();
+    });
+
+    // Chromium enhancement: ask the SW to flush even after the app is closed.
+    if ('serviceWorker' in navigator && 'SyncManager' in window) {
+      navigator.serviceWorker.ready
+        .then((reg) => (reg as unknown as { sync?: { register: (t: string) => Promise<void> } }).sync?.register('breakfit-history'))
+        .catch(() => { /* unsupported / denied — universal triggers still cover us */ });
+    }
+
+    flush(); // initial attempt on boot
+  }
+
   async push(): Promise<{ pushed: number }> {
     if (!environment.cloudEnabled || !this.auth.isAuthed()) return { pushed: 0 };
+    if (!navigator.onLine) return { pushed: 0 };
     const queue = await this.idb.drainSyncQueue();
     let pushed = 0;
     for (const entry of queue) {

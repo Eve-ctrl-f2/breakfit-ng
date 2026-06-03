@@ -17,6 +17,8 @@ import { TranslationService } from '@core/i18n/translation.service';
 import { TPipe } from '@core/i18n/t.pipe';
 import { PresetCardComponent } from './preset-card.component';
 import { CustomExerciseFormComponent } from './custom-exercise-form.component';
+import { InstallCardComponent } from './install-card.component';
+import { PushControlComponent } from './push-control.component';
 import { CATEGORY_LABELS, CATEGORY_COLOR_VAR } from '@core/data/exercises.data';
 import type { Difficulty, SelectionMode } from '@core/models/models';
 import type { Locale } from '@core/i18n/translations';
@@ -27,7 +29,7 @@ import type { Locale } from '@core/i18n/translations';
   imports: [
     FormsModule, CardModule, SliderModule, SelectButtonModule,
     ToggleSwitchModule, SelectModule, ButtonModule, TagModule, RouterLink, TPipe,
-    PresetCardComponent, CustomExerciseFormComponent,
+    PresetCardComponent, CustomExerciseFormComponent, InstallCardComponent, PushControlComponent,
   ],
   template: `
     <section class="container">
@@ -119,6 +121,7 @@ import type { Locale } from '@core/i18n/translations';
           <p-toggleswitch [ngModel]="st().soundEnabled"
                           (ngModelChange)="patch({ soundEnabled: $event })" />
         </div>
+        <bf-push-control />
         @if (notify.permission() !== 'granted') {
           <p class="muted set__hint">{{ 'settings.notifHint' | t }}</p>
         }
@@ -141,6 +144,12 @@ import type { Locale } from '@core/i18n/translations';
           <p-button [label]="'settings.signin' | t" icon="pi pi-cloud" routerLink="/auth/login" />
         </p-card>
       }
+
+      <!-- Install / PWA -->
+      <p-card styleClass="set-card">
+        <p class="set__h">{{ 'install.title' | t }}</p>
+        <bf-install-card />
+      </p-card>
 
       <!-- Feedback -->
       <p-card styleClass="set-card">

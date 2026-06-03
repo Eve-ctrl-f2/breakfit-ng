@@ -84,3 +84,26 @@ CREATE TABLE IF NOT EXISTS custom_exercises (
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
   PRIMARY KEY (user_id, id)
 );
+
+-- ---------------------------------------------------------------------------
+-- push_subscriptions  (Web Push / VAPID; one row per browser endpoint)
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+  endpoint    TEXT PRIMARY KEY,                 -- unique per browser/device
+  user_id     UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  p256dh      TEXT NOT NULL,
+  auth        TEXT NOT NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_push_user ON push_subscriptions (user_id);
+
+-- ---------------------------------------------------------------------------
+-- reminders  (per-user daily nudge prefs; drives the server-side scheduler)
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS reminders (
+  user_id       UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  timezone      TEXT NOT NULL DEFAULT 'UTC',   -- IANA tz from the client
+  locale        TEXT NOT NULL DEFAULT 'de',
+  enabled       BOOLEAN NOT NULL DEFAULT true,
+  last_nudge_on DATE                            -- local date of last sent nudge
+);

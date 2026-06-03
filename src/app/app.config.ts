@@ -1,5 +1,6 @@
 import {
   ApplicationConfig,
+  ErrorHandler,
   provideZonelessChangeDetection,
   provideAppInitializer,
   inject,
@@ -15,6 +16,9 @@ import { routes } from './app.routes';
 import { BreakFitPreset } from './theme/breakfit-preset';
 import { apiInterceptor, errorInterceptor } from './core/api/interceptors';
 import { AuthService } from './core/api/auth.service';
+import { SyncService } from './core/api/sync.service';
+import { PlatformService } from './core/services/platform.service';
+import { GlobalErrorHandler } from './core/error/global-error-handler';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -38,7 +42,15 @@ export const appConfig: ApplicationConfig = {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000',
     }),
-    // Restore the session (no-op when cloud disabled) before the app renders.
-    provideAppInitializer(() => inject(AuthService).loadMe()),
+    // App bootstrap: restore session (no-op when cloud disabled), construct the
+    // platform-capability service (attaches the install-prompt listener early),
+    // and start cross-platform auto-sync.
+    provideAppInitializer(() => {
+      inject(PlatformService); // eager — must catch beforeinstallprompt
+      inject(SyncService).enableAutoSync();
+      return inject(AuthService).loadMe();
+    }),
+    // Global crash reporting — forwards uncaught errors to the reporting seam.
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
   ],
 };

@@ -14,10 +14,11 @@ import { RecommendationService } from '@core/services/recommendation.service';
 import { TimerService } from '@core/services/timer.service';
 import { HistoryService } from '@core/services/history.service';
 import { MeetingService, MEETING_PRESETS } from '@core/services/meeting.service';
-import { SyncService } from '@core/api/sync.service';
+import { SyncCoordinatorService } from '@core/services/sync-coordinator.service';
 import { CATEGORY_LABELS, CATEGORY_COLOR_VAR } from '@core/data/exercises.data';
 import { TPipe } from '@core/i18n/t.pipe';
 import type { Recommendation } from '@core/models/models';
+import {SyncService} from "@core/api/sync.service";
 
 type Step = 'exercise' | 'feedback' | 'meeting';
 
@@ -27,11 +28,13 @@ type Step = 'exercise' | 'feedback' | 'meeting';
   imports: [FormsModule, DialogModule, ButtonModule, TPipe],
   template: `
     <p-dialog
-      [visible]="open()"
+      [visible]="visible()"
+      (visibleChange)="onVisibleChange($event)"
       [modal]="true"
       [closable]="false"
       [dismissableMask]="false"
       [draggable]="false"
+      appendTo="body"
       [style]="{ width: 'min(440px, 92vw)' }"
       styleClass="break-dialog"
     >
@@ -160,21 +163,32 @@ export class BreakModalComponent {
   readonly rec = signal<Recommendation | null>(null);
   readonly amount = signal(0);
   readonly step = signal<Step>('exercise');
+  /** internal dialog visibility, driven by the `open` input */
+  readonly visible = signal(false);
 
   private startedAt = new Date().toISOString();
 
   constructor() {
-    // when the modal opens, draw a fresh recommendation + start the break timer
+    // mirror the `open` input into the dialog's visibility, and on each open
+    // draw a fresh recommendation. The break countdown itself is started by the
+    // app shell, so the exercise overlay is fully decoupled from the timer.
     effect(() => {
-      if (this.open()) {
+      const isOpen = this.open();
+      this.visible.set(isOpen);
+      if (isOpen) {
         this.startedAt = new Date().toISOString();
         this.step.set('exercise');
         const r = this.reco.next();
         this.rec.set(r);
         this.amount.set(r?.amount ?? 0);
-        this.timer.startBreak(this.timer.isLongBreakDue());
       }
     });
+  }
+
+  /** keep our signal in sync if PrimeNG closes the dialog internally */
+  onVisibleChange(v: boolean): void {
+    this.visible.set(v);
+    if (!v && this.open()) this.closed.emit();
   }
 
   catLabel(r: Recommendation): string { return CATEGORY_LABELS[r.exercise.category]; }

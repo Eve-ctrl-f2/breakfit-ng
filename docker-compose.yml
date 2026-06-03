@@ -1,0 +1,35 @@
+# One-command backend for the Web Push live test: Postgres + API. No Redis needed.
+# Schema is applied automatically on first DB boot via the init mount.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: breakfit
+      POSTGRES_PASSWORD: breakfit
+      POSTGRES_DB: breakfit
+    volumes:
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - bf_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U breakfit"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: ./server
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - ./server/.env
+    environment:
+      # override .env so the API reaches Postgres by service name inside the network
+      DATABASE_URL: postgres://breakfit:breakfit@db:5432/breakfit
+      REDIS_URL: ""
+      PORT: "8080"
+    ports:
+      - "8080:8080"
+
+volumes:
+  bf_pgdata:

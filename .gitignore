@@ -6,3 +6,5 @@ out-tsc/
 .DS_Store
 server/dist/
 server/node_modules/
+server/.env
+.env

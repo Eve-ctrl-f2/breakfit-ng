@@ -68,6 +68,13 @@ export class ExercisePoolService {
     this._overrides.update((o) => ({ ...o, custom: o.custom.filter((e) => e.id !== id) }));
   }
 
+  updateCustom(id: string, patch: Partial<Omit<Exercise, 'id' | 'custom'>>): void {
+    this._overrides.update((o) => ({
+      ...o,
+      custom: o.custom.map((e) => (e.id === id ? { ...e, ...patch, id, custom: true } : e)),
+    }));
+  }
+
   byId(id: string): Exercise | undefined {
     return this.all().find((e) => e.id === id);
   }

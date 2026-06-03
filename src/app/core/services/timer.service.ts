@@ -42,6 +42,11 @@ export class TimerService {
     this.beginPhase('focus', this.settings.focusSeconds());
   }
 
+  /** Postpone the break: re-focus for a short, explicit number of minutes. */
+  snoozeFor(minutes: number): void {
+    this.beginPhase('focus', Math.max(1, Math.round(minutes)) * 60);
+  }
+
   startBreak(long = false): void {
     const phase: TimerPhase = long ? 'longBreak' : 'break';
     const secs = long ? this.settings.longBreakSeconds() : this.settings.breakSeconds();

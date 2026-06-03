@@ -57,7 +57,7 @@ const EMPTY_FORM: Form = {
       />
     } @else {
       <div class="exf">
-        <p class="set__h">{{ 'exercises.addTitle' | t }}</p>
+        <p class="set__h">{{ (editId() ? 'exercises.editTitle' : 'exercises.addTitle') | t }}</p>
 
         <!-- Name -->
         <label class="exf__row">
@@ -132,6 +132,7 @@ export class CustomExerciseFormComponent {
 
   readonly open = signal(false);
   readonly error = signal<string | null>(null);
+  readonly editId = signal<string | null>(null);
 
   private readonly _form = signal<Form>({ ...EMPTY_FORM });
   readonly form = this._form.asReadonly();
@@ -156,6 +157,20 @@ export class CustomExerciseFormComponent {
     ];
   }
 
+  /** open the form pre-filled to edit an existing custom exercise */
+  editExercise(ex: { id: string; name: string; category: ExerciseCategory; difficulty: Difficulty; unit: 'reps' | 'seconds'; defaultAmount: number }): void {
+    this._form.set({
+      name: ex.name,
+      category: ex.category,
+      difficulty: ex.difficulty,
+      unit: ex.unit,
+      defaultAmount: ex.defaultAmount,
+    });
+    this.editId.set(ex.id);
+    this.error.set(null);
+    this.open.set(true);
+  }
+
   patch(partial: Partial<Form>): void {
     this._form.update((f) => ({ ...f, ...partial }));
   }
@@ -165,24 +180,29 @@ export class CustomExerciseFormComponent {
     const name = f.name.trim();
     if (!name) { this.error.set(this.i18n.t('exercises.errName')); return; }
     if (f.defaultAmount < 1) { this.error.set(this.i18n.t('exercises.errAmount')); return; }
-    if (this.pool.all().filter((e) => e.custom).length >= 20) {
-      this.error.set(this.i18n.t('exercises.errMax')); return;
+
+    const editing = this.editId();
+    if (editing) {
+      this.pool.updateCustom(editing, {
+        name, category: f.category, difficulty: f.difficulty,
+        unit: f.unit, defaultAmount: f.defaultAmount,
+      });
+    } else {
+      if (this.pool.all().filter((e) => e.custom).length >= 20) {
+        this.error.set(this.i18n.t('exercises.errMax')); return;
+      }
+      this.pool.addCustom({
+        name, category: f.category, difficulty: f.difficulty,
+        unit: f.unit, defaultAmount: f.defaultAmount, intensity: 3, icon: 'pi-bolt',
+      });
     }
-    this.pool.addCustom({
-      name,
-      category: f.category,
-      difficulty: f.difficulty,
-      unit: f.unit,
-      defaultAmount: f.defaultAmount,
-      intensity: 3,
-      icon: 'pi-bolt',
-    });
     this.cancel();
   }
 
   cancel(): void {
     this._form.set({ ...EMPTY_FORM });
     this.error.set(null);
+    this.editId.set(null);
     this.open.set(false);
   }
 }

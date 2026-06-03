@@ -1,12 +1,13 @@
-# ---- build stage ----
+# --- build stage ---
 FROM node:22-alpine AS build
 WORKDIR /app
 COPY package.json ./
 RUN npm install
-COPY . .
+COPY tsconfig.json ./
+COPY src ./src
 RUN npm run build
 
-# ---- runtime stage ----
+# --- runtime stage ---
 FROM node:22-alpine
 WORKDIR /app
 ENV NODE_ENV=production

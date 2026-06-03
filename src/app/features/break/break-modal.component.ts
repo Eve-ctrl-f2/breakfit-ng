@@ -20,7 +20,9 @@ import { TPipe } from '@core/i18n/t.pipe';
 import type { Recommendation } from '@core/models/models';
 import {SyncService} from "@core/api/sync.service";
 
-type Step = 'exercise' | 'feedback' | 'meeting';
+type Step = 'exercise' | 'feedback' | 'meeting' | 'snooze';
+
+const SNOOZE_PRESETS = [2, 5, 10] as const;
 
 @Component({
   selector: 'bf-break-modal',
@@ -93,6 +95,15 @@ type Step = 'exercise' | 'feedback' | 'meeting';
           </div>
           <p-button [label]="'common.cancel' | t" severity="secondary" [text]="true"
                     size="small" styleClass="break__shuffle" (onClick)="step.set('exercise')" />
+        } @else if (step() === 'snooze') {
+          <p class="break__fb-q muted">{{ 'snooze.choose' | t }}</p>
+          <div class="break__meeting">
+            @for (m of snoozePresets; track m) {
+              <p-button [label]="m + ' min'" [outlined]="true" (onClick)="startSnooze(m)" />
+            }
+          </div>
+          <p-button [label]="'common.cancel' | t" severity="secondary" [text]="true"
+                    size="small" styleClass="break__shuffle" (onClick)="step.set('exercise')" />
         }
       } @else {
         <p class="muted">{{ 'break.emptyPool' | t }}</p>
@@ -155,6 +166,7 @@ export class BreakModalComponent {
   private sync = inject(SyncService);
 
   readonly meetingPresets = MEETING_PRESETS;
+  readonly snoozePresets = SNOOZE_PRESETS;
 
   /** controlled by the app shell */
   readonly open = input(false);
@@ -240,6 +252,11 @@ export class BreakModalComponent {
   }
 
   async snooze(): Promise<void> {
+    // open the duration chooser instead of postponing immediately
+    this.step.set('snooze');
+  }
+
+  async startSnooze(minutes: number): Promise<void> {
     await this.history.record({
       outcome: 'snoozed',
       exercise: this.rec()?.exercise ?? null,
@@ -247,7 +264,7 @@ export class BreakModalComponent {
       feedback: null,
       startedAt: this.startedAt,
     });
-    this.timer.startFocus();
+    this.timer.snoozeFor(minutes);
     this.close();
   }
 
@@ -265,6 +282,7 @@ export class BreakModalComponent {
     const s = this.step();
     if (s === 'feedback') return 'break.title.feedback';
     if (s === 'meeting') return 'meeting.title';
+    if (s === 'snooze') return 'snooze.title';
     return 'break.title';
   }
 

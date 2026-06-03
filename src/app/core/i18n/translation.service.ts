@@ -31,6 +31,11 @@ export class TranslationService {
     this.syncHtmlLang(locale);
   }
 
+  /** BCP-47 tag for Intl APIs (date/number formatting) */
+  bcp47(): string {
+    return { de: 'de-DE', en: 'en-GB', fr: 'fr-FR' }[this.locale()];
+  }
+
   t(key: string, params?: Record<string, string | number>): string {
     const loc = this.locale();
     const resolvedKey = this.resolvePlural(key, loc, params);
@@ -60,9 +65,11 @@ export class TranslationService {
 
   private initialLocale(): Locale {
     const stored = localStorage.getItem(STORAGE_KEY) as Locale | null;
-    if (stored && (stored === 'de' || stored === 'en')) return stored;
+    if (stored === 'de' || stored === 'en' || stored === 'fr') return stored;
     const nav = (navigator.language || '').slice(0, 2);
-    return nav === 'en' ? 'en' : FALLBACK;
+    if (nav === 'en') return 'en';
+    if (nav === 'fr') return 'fr';
+    return FALLBACK;
   }
 
   private syncHtmlLang(loc: Locale): void {

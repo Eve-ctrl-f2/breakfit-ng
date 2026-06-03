@@ -2,7 +2,7 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import rateLimit from '@fastify/rate-limit';
 import postgres from 'postgres';
-import Redis from 'ioredis';
+import { Redis } from 'ioredis';
 
 import { registerAuthRoutes } from './modules/auth.routes.js';
 import { registerSyncRoutes } from './modules/sync.routes.js';
@@ -25,6 +25,16 @@ await app.register(cors, {
   credentials: true,
 });
 await app.register(rateLimit, { max: 100, timeWindow: '1 minute' });
+
+// Baseline security headers on every API response (no extra dependency).
+app.addHook('onSend', async (_req, reply, payload) => {
+  reply.header('X-Content-Type-Options', 'nosniff');
+  reply.header('X-Frame-Options', 'DENY');
+  reply.header('Referrer-Policy', 'no-referrer');
+  reply.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  reply.header('Permissions-Policy', 'geolocation=(), camera=(), microphone=()');
+  return payload;
+});
 
 // Decorate request with the authenticated user (set by the auth preHandler).
 declare module 'fastify' {

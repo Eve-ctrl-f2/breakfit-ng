@@ -48,7 +48,7 @@ export interface UserSettings {
   notificationsEnabled: boolean;
   soundEnabled: boolean;
   autoStartNextFocus: boolean;
-  locale: 'de' | 'en';
+  locale: 'de' | 'en' | 'fr';
 }
 
 export const DEFAULT_SETTINGS: UserSettings = {

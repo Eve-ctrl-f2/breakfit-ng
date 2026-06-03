@@ -153,8 +153,7 @@ export class InsightsPageComponent {
   readonly recent = computed(() => this.history.entries().slice(0, 12));
 
   time(iso: string): string {
-    const loc = this.i18n.locale() === 'en' ? 'en-GB' : 'de-DE';
-    return new Date(iso).toLocaleTimeString(loc, { hour: '2-digit', minute: '2-digit' });
+    return new Date(iso).toLocaleTimeString(this.i18n.bcp47(), { hour: '2-digit', minute: '2-digit' });
   }
 }
 

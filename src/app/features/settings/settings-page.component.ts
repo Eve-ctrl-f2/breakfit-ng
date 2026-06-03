@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CardModule } from 'primeng/card';
@@ -96,8 +96,12 @@ import type { Locale } from '@core/i18n/translations';
             <span class="ex__cat" [style.background]="catColor(ex.category)"></span>
             <span class="ex__name">{{ ex.name }}</span>
             @if (ex.custom) {
+              <button class="ex__del" (click)="form()?.editExercise(ex)"
+                      [attr.aria-label]="'common.edit' | t" data-testid="exercise-edit">
+                <i class="pi pi-pencil"></i>
+              </button>
               <button class="ex__del" (click)="pool.removeCustom(ex.id)"
-                      [attr.aria-label]="'common.delete' | t">
+                      [attr.aria-label]="'common.delete' | t" data-testid="exercise-delete">
                 <i class="pi pi-trash"></i>
               </button>
             }
@@ -212,6 +216,9 @@ export class SettingsPageComponent {
   readonly cloudEnabled = environment.cloudEnabled;
   readonly version = environment.appVersion;
 
+  /** reference to the custom-exercise form, so a pool row can trigger edit */
+  readonly form = viewChild(CustomExerciseFormComponent);
+
   // Option labels are computed so they re-translate on locale change.
   readonly difficulties = computed<{ label: string; value: Difficulty }[]>(() => [
     { label: this.i18n.t('settings.diff.leicht'), value: 'leicht' },
@@ -230,8 +237,7 @@ export class SettingsPageComponent {
   }
 
   buildDate(): string {
-    const loc = this.i18n.locale() === 'en' ? 'en-GB' : 'de-DE';
-    return new Date(environment.buildDate).toLocaleDateString(loc);
+    return new Date(environment.buildDate).toLocaleDateString(this.i18n.bcp47());
   }
 
   patch = this.settings.patch.bind(this.settings);

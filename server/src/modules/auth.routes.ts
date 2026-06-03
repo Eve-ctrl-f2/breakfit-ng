@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import type { Sql } from 'postgres';
-import type Redis from 'ioredis';
+import type { Redis } from 'ioredis';
 import { z } from 'zod';
 import { sha256 } from '../server.js';
 

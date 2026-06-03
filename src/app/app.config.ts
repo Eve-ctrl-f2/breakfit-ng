@@ -6,7 +6,7 @@ import {
   inject,
   isDevMode,
 } from '@angular/core';
-import { provideRouter, withComponentInputBinding, withViewTransitions } from '@angular/router';
+import { provideRouter, withComponentInputBinding, withViewTransitions, withPreloading, PreloadAllModules } from '@angular/router';
 import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
@@ -24,7 +24,14 @@ export const appConfig: ApplicationConfig = {
   providers: [
     // Angular 21: zoneless change detection is the default for new projects.
     provideZonelessChangeDetection(),
-    provideRouter(routes, withComponentInputBinding(), withViewTransitions()),
+    provideRouter(
+      routes,
+      withComponentInputBinding(),
+      withViewTransitions(),
+      // Lazy routes load on demand, then preload the rest in the background once
+      // the initial route is stable — first paint stays small, later nav is instant.
+      withPreloading(PreloadAllModules),
+    ),
     provideHttpClient(withFetch(), withInterceptors([apiInterceptor, errorInterceptor])),
     provideAnimationsAsync(),
     providePrimeNG({

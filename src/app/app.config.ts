@@ -55,7 +55,9 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => {
       inject(PlatformService); // eager — must catch beforeinstallprompt
       inject(SyncService).enableAutoSync();
-      return inject(AuthService).loadMe();
+      const auth = inject(AuthService);
+      // rotate the session token on boot, then load the user
+      return auth.refresh().then(() => auth.loadMe());
     }),
     // Global crash reporting — forwards uncaught errors to the reporting seam.
     { provide: ErrorHandler, useClass: GlobalErrorHandler },

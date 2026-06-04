@@ -35,6 +35,9 @@ services:
       DATABASE_URL: postgres://breakfit:breakfit@db:5432/breakfit
       REDIS_URL: redis://redis:6379
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:4200}
+      EMAIL_PROVIDER: ${EMAIL_PROVIDER:-console}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      EMAIL_FROM: ${EMAIL_FROM:-BreakFit <login@breakfit.app>}
     ports: ["8080:8080"]
     depends_on:
       db:

@@ -14,6 +14,8 @@ import { SettingsService } from '@core/services/settings.service';
 import { ExercisePoolService } from '@core/services/exercise-pool.service';
 import { NotificationService } from '@core/services/notification.service';
 import { TranslationService } from '@core/i18n/translation.service';
+import { AuthService } from '@core/api/auth.service';
+import { SyncService } from '@core/api/sync.service';
 import { TPipe } from '@core/i18n/t.pipe';
 import { PresetCardComponent } from './preset-card.component';
 import { CustomExerciseFormComponent } from './custom-exercise-form.component';
@@ -144,8 +146,20 @@ import type { Locale } from '@core/i18n/translations';
       @if (cloudEnabled) {
         <p-card styleClass="set-card">
           <p class="set__h">{{ 'settings.cloud' | t }}</p>
-          <p class="muted set__hint">{{ 'settings.cloudHint' | t }}</p>
-          <p-button [label]="'settings.signin' | t" icon="pi pi-cloud" routerLink="/auth/login" />
+          @if (!auth.isAuthed()) {
+            <p class="muted set__hint">{{ 'settings.cloudHint' | t }}</p>
+            <p-button [label]="'settings.signin' | t" icon="pi pi-cloud" routerLink="/auth/login" />
+          } @else {
+            <p class="muted set__hint">{{ auth.user()?.email }}</p>
+            <div class="set__cloud-actions">
+              <p-button [label]="'settings.export' | t" icon="pi pi-download"
+                        [outlined]="true" size="small" (onClick)="exportData()" />
+              <p-button [label]="'settings.logout' | t" icon="pi pi-sign-out"
+                        [text]="true" severity="secondary" size="small" (onClick)="auth.logout()" />
+              <p-button [label]="'settings.logoutAll' | t" icon="pi pi-power-off"
+                        [text]="true" severity="danger" size="small" (onClick)="auth.logoutAllDevices()" />
+            </div>
+          }
         </p-card>
       }
 
@@ -181,6 +195,7 @@ import type { Locale } from '@core/i18n/translations';
     .set__toggle { display: flex; justify-content: space-between; align-items: center;
                    padding: 8px 0; font-size: 0.9rem; color: var(--text-1); }
     .set__hint { font-size: 0.8rem; margin: var(--s-2) 0 0; }
+    .set__cloud-actions { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-3); }
     .ex { display: flex; align-items: center; gap: var(--s-2); padding: 8px 0;
           border-bottom: 1px solid var(--border-1); }
     .ex:last-child { border-bottom: none; }
@@ -211,6 +226,12 @@ export class SettingsPageComponent {
   readonly pool = inject(ExercisePoolService);
   readonly notify = inject(NotificationService);
   readonly i18n = inject(TranslationService);
+  readonly auth = inject(AuthService);
+  private sync = inject(SyncService);
+
+  async exportData(): Promise<void> {
+    try { await this.sync.exportData(); } catch { /* surfaced via global handler */ }
+  }
 
   readonly st = this.settings.settings;
   readonly cloudEnabled = environment.cloudEnabled;

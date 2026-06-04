@@ -77,4 +77,18 @@ export class SyncService {
     // NB: backend enforces z.literal("KONTO LÖSCHEN") — must match verbatim.
     await firstValueFrom(this.http.post('/me/delete', { confirmation }));
   }
+
+  /** GDPR export: fetch all server-side data and trigger a JSON file download. */
+  async exportData(): Promise<void> {
+    if (!environment.cloudEnabled) return;
+    const blob = await firstValueFrom(
+      this.http.get('/me/export', { responseType: 'blob' }),
+    );
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'breakfit-export.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 }

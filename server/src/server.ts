@@ -5,6 +5,7 @@ import postgres from 'postgres';
 import { Redis } from 'ioredis';
 
 import { registerAuthRoutes } from './modules/auth.routes.js';
+import { createMailer } from './email/mailer.js';
 import { registerSyncRoutes } from './modules/sync.routes.js';
 import { registerMeRoutes } from './modules/me.routes.js';
 import { registerTelemetryRoutes } from './modules/telemetry.routes.js';
@@ -67,7 +68,8 @@ export async function sha256(input: string): Promise<string> {
 
 app.get('/health', async () => ({ ok: true }));
 
-await registerAuthRoutes(app, { sql, redis });
+const mailer = createMailer(app.log);
+await registerAuthRoutes(app, { sql, redis, mailer });
 await registerSyncRoutes(app, { sql });
 await registerMeRoutes(app, { sql });
 await registerTelemetryRoutes(app);

@@ -14,11 +14,10 @@ import { RecommendationService } from '@core/services/recommendation.service';
 import { TimerService } from '@core/services/timer.service';
 import { HistoryService } from '@core/services/history.service';
 import { MeetingService, MEETING_PRESETS } from '@core/services/meeting.service';
-import { SyncCoordinatorService } from '@core/services/sync-coordinator.service';
+import { SyncService } from '@core/api/sync.service';
 import { CATEGORY_LABELS, CATEGORY_COLOR_VAR } from '@core/data/exercises.data';
 import { TPipe } from '@core/i18n/t.pipe';
 import type { Recommendation } from '@core/models/models';
-import {SyncService} from "@core/api/sync.service";
 
 type Step = 'exercise' | 'feedback' | 'meeting' | 'snooze';
 

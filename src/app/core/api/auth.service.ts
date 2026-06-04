@@ -50,7 +50,36 @@ export class AuthService {
     this.user.set(me);
   }
 
-  logout(): void {
+  /** Rotate the session token (called on boot). Best-effort: on failure the
+   *  existing token keeps working until it expires. */
+  async refresh(): Promise<void> {
+    if (!environment.cloudEnabled || !this.token()) return;
+    try {
+      const res = await firstValueFrom(this.http.post<{ token: string }>('/auth/refresh', {}));
+      this.token.set(res.token);
+      localStorage.setItem(TOKEN_KEY, res.token);
+    } catch {
+      /* token still valid until TTL; ignore */
+    }
+  }
+
+  /** Revoke this device's session on the server, then clear locally. */
+  async logout(): Promise<void> {
+    if (environment.cloudEnabled && this.token()) {
+      try { await firstValueFrom(this.http.post('/auth/logout', {})); } catch { /* clear anyway */ }
+    }
+    this.clearLocal();
+  }
+
+  /** Revoke every session for this account (all devices). */
+  async logoutAllDevices(): Promise<void> {
+    if (environment.cloudEnabled && this.token()) {
+      try { await firstValueFrom(this.http.post('/auth/logout-all', {})); } catch { /* clear anyway */ }
+    }
+    this.clearLocal();
+  }
+
+  private clearLocal(): void {
     this.token.set(null);
     this.user.set(null);
     localStorage.removeItem(TOKEN_KEY);

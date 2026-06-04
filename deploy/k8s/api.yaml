@@ -1,0 +1,54 @@
+# Minimal Kubernetes manifest for the BreakFit API with health probes.
+# Readiness gates traffic; liveness restarts a wedged pod. Both hit /health,
+# which returns 503 when the DB (or a configured Redis) is unreachable.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: breakfit-api
+  labels: { app: breakfit-api }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: breakfit-api }
+  template:
+    metadata:
+      labels: { app: breakfit-api }
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+        - name: api
+          image: breakfit-api:latest
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef: { name: breakfit-api-env }
+          readinessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet: { path: /health, port: 8080 }
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          startupProbe:
+            httpGet: { path: /health, port: 8080 }
+            failureThreshold: 30
+            periodSeconds: 2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: breakfit-api
+  labels: { app: breakfit-api }
+spec:
+  selector: { app: breakfit-api }
+  ports:
+    - port: 80
+      targetPort: 8080

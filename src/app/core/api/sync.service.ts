@@ -4,7 +4,8 @@ import { firstValueFrom } from 'rxjs';
 import { environment } from '@env/environment';
 import { IdbService } from '../services/storage/idb.service';
 import { AuthService } from './auth.service';
-import type { HistoryEntry } from '../models/models';
+import { SettingsService } from '../services/settings.service';
+import type { HistoryEntry, UserSettings } from '../models/models';
 
 /**
  * SyncService — best-effort, offline-first sync of the local history queue to
@@ -16,6 +17,7 @@ export class SyncService {
   private http = inject(HttpClient);
   private idb = inject(IdbService);
   private auth = inject(AuthService);
+  private settings = inject(SettingsService);
 
   private autoSyncStarted = false;
 
@@ -33,7 +35,7 @@ export class SyncService {
     if (this.autoSyncStarted || !environment.cloudEnabled) return;
     this.autoSyncStarted = true;
 
-    const flush = () => { void this.push(); };
+    const flush = () => { void this.push(); void this.syncSettings(); };
 
     window.addEventListener('online', flush);
     document.addEventListener('visibilitychange', () => {
@@ -70,6 +72,30 @@ export class SyncService {
   async pull(): Promise<HistoryEntry[]> {
     if (!environment.cloudEnabled || !this.auth.isAuthed()) return [];
     return firstValueFrom(this.http.get<HistoryEntry[]>('/sync/history'));
+  }
+
+  /**
+   * Reconcile settings across devices. Sends the local copy with its version;
+   * the server keeps whichever `updatedAt` is newer (last-write-wins) and
+   * returns the winner, which we adopt locally. One round-trip both pushes and
+   * resolves. No-op unless cloud + authed + online.
+   */
+  async syncSettings(): Promise<void> {
+    if (!environment.cloudEnabled || !this.auth.isAuthed() || !navigator.onLine) return;
+    const local = this.settings.snapshot();
+    try {
+      const winner = await firstValueFrom(
+        this.http.put<{ settings: UserSettings; updatedAt: number } | null>(
+          '/sync/settings',
+          local,
+        ),
+      );
+      if (winner && winner.updatedAt > local.updatedAt) {
+        this.settings.applyRemote(winner.settings, winner.updatedAt);
+      }
+    } catch {
+      /* offline / transient — retried by the coordinator */
+    }
   }
 
   async deleteAccount(confirmation: string): Promise<void> {

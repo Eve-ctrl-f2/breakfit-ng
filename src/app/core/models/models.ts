@@ -28,6 +28,11 @@ export interface Exercise {
   custom?: boolean;
   /** primeicons class, e.g. "pi-bolt". Never an emoji (notification surface rule). */
   icon: string;
+  /** Short how-to steps (domain content, kept in German like names/categories). */
+  instructions?: string[];
+  /** Optional demo media (image/gif/short mp4). Rendered if present; base
+   *  exercises ship none — drop a URL here to enable a visual demo. */
+  mediaUrl?: string;
 }
 
 export type SelectionMode = 'adaptive' | 'random' | 'rotation';
@@ -48,7 +53,12 @@ export interface UserSettings {
   notificationsEnabled: boolean;
   soundEnabled: boolean;
   autoStartNextFocus: boolean;
-  locale: 'de' | 'en' | 'fr';
+  /** weekdays (0=Mon..6=Sun) that don't break the streak when empty */
+  restDays: number[];
+  /** appearance */
+  theme: 'system' | 'light' | 'dark';
+  accent: 'lime' | 'cyan' | 'amber' | 'coral' | 'violet';
+  locale: 'de' | 'en' | 'fr' | 'es' | 'it';
 }
 
 export const DEFAULT_SETTINGS: UserSettings = {
@@ -62,6 +72,9 @@ export const DEFAULT_SETTINGS: UserSettings = {
   notificationsEnabled: true,
   soundEnabled: true,
   autoStartNextFocus: false,
+  restDays: [],
+  theme: 'dark',
+  accent: 'lime',
   locale: 'de',
 };
 

@@ -33,7 +33,7 @@ export class TranslationService {
 
   /** BCP-47 tag for Intl APIs (date/number formatting) */
   bcp47(): string {
-    return { de: 'de-DE', en: 'en-GB', fr: 'fr-FR' }[this.locale()];
+    return { de: 'de-DE', en: 'en-GB', fr: 'fr-FR', es: 'es-ES', it: 'it-IT' }[this.locale()];
   }
 
   t(key: string, params?: Record<string, string | number>): string {
@@ -65,10 +65,12 @@ export class TranslationService {
 
   private initialLocale(): Locale {
     const stored = localStorage.getItem(STORAGE_KEY) as Locale | null;
-    if (stored === 'de' || stored === 'en' || stored === 'fr') return stored;
+    if (['de', 'en', 'fr', 'es', 'it'].includes(stored as string)) return stored as Locale;
     const nav = (navigator.language || '').slice(0, 2);
     if (nav === 'en') return 'en';
     if (nav === 'fr') return 'fr';
+    if (nav === 'es') return 'es';
+    if (nav === 'it') return 'it';
     return FALLBACK;
   }
 

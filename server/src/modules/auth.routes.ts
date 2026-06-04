@@ -24,6 +24,15 @@ export async function registerAuthRoutes(app: FastifyInstance, { sql, redis, mai
     if (!parsed.success) return reply.code(400).send({ message: 'Ungültige E-Mail' });
     const { email } = parsed.data;
 
+    // Per-identity throttle: cap code requests per email to slow brute-force and
+    // address-enumeration. DB-backed so it holds across instances; no extra dep.
+    const recent = await sql<{ n: number }[]>`
+      SELECT count(*)::int AS n FROM login_codes
+      WHERE email = ${email} AND created_at > now() - interval '15 minutes'`;
+    if (recent[0].n >= 5) {
+      return reply.code(429).send({ message: 'Zu viele Anfragen. Bitte später erneut.' });
+    }
+
     const code = String(Math.floor(100000 + Math.random() * 900000));
     const codeHash = await sha256(code);
     await sql`

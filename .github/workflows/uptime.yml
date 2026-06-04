@@ -1,0 +1,55 @@
+name: Uptime
+
+# Free, code-based uptime check. Set repo variable HEALTH_URL to your deployed
+# health endpoint (e.g. https://api.your-domain.com/health). Supplements an
+# external monitor; GitHub cron is best-effort (~5 min granularity, can lag).
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe /health
+        id: probe
+        run: |
+          URL="${{ vars.HEALTH_URL }}"
+          if [ -z "$URL" ]; then
+            echo "HEALTH_URL repo variable not set — skipping."
+            exit 0
+          fi
+          code=$(curl -fsS -o body.json -w "%{http_code}" --max-time 15 "$URL" || true)
+          echo "status=$code"
+          cat body.json || true
+          if [ "$code" != "200" ]; then
+            echo "down=true" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+          if command -v jq >/dev/null && [ -s body.json ]; then
+            ok=$(jq -r '.ok // empty' body.json 2>/dev/null || echo "")
+            if [ "$ok" = "false" ]; then echo "down=true" >> "$GITHUB_OUTPUT"; exit 1; fi
+          fi
+
+      - name: Open issue on failure
+        if: failure() && steps.probe.outputs.down == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = "Uptime: /health check failing";
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner, repo: context.repo.repo,
+              state: "open", labels: "uptime",
+            });
+            if (issues.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner, repo: context.repo.repo,
+                title, labels: ["uptime"],
+                body: `Health check failed at ${new Date().toISOString()} (run ${context.runId}).`,
+              });
+            }

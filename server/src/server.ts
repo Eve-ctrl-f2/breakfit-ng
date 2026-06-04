@@ -11,6 +11,7 @@ import { registerMeRoutes } from './modules/me.routes.js';
 import { registerTelemetryRoutes } from './modules/telemetry.routes.js';
 import { registerPushRoutes, initWebPush } from './modules/push.routes.js';
 import { startReminderScheduler } from './modules/reminder-scheduler.js';
+import { registerMetrics } from './metrics.js';
 
 const PORT = Number(process.env.PORT ?? 8080);
 const sql = postgres(process.env.DATABASE_URL ?? 'postgres://localhost/breakfit');
@@ -19,7 +20,19 @@ const sql = postgres(process.env.DATABASE_URL ?? 'postgres://localhost/breakfit'
 // deploys need nothing but Postgres.
 const redis = process.env.REDIS_URL ? new Redis(process.env.REDIS_URL) : null;
 
-const app = Fastify({ logger: true });
+const app = Fastify({
+  // Structured JSON logs (pino). Level via LOG_LEVEL; redact secrets so tokens
+  // and credentials never land in logs.
+  logger: {
+    level: process.env.LOG_LEVEL ?? 'info',
+    redact: {
+      paths: ['req.headers.authorization', 'req.headers.cookie', 'res.headers["set-cookie"]'],
+      remove: true,
+    },
+  },
+  // Correct client IPs (and thus rate-limit keys) when behind a proxy/load balancer.
+  trustProxy: true,
+});
 
 await app.register(cors, {
   origin: (process.env.CORS_ORIGIN ?? '*').split(','),
@@ -66,7 +79,14 @@ export async function sha256(input: string): Promise<string> {
   return Buffer.from(digest).toString('hex');
 }
 
-app.get('/health', async () => ({ ok: true }));
+app.get('/health', async (_req, reply) => {
+  let db = false;
+  let redisOk: boolean | null = redis ? false : null;
+  try { await sql`SELECT 1`; db = true; } catch { /* db down */ }
+  if (redis) { try { await redis.ping(); redisOk = true; } catch { /* redis down */ } }
+  const ok = db && (redisOk === null || redisOk === true);
+  return reply.code(ok ? 200 : 503).send({ ok, db, redis: redisOk });
+});
 
 const mailer = createMailer(app.log);
 await registerAuthRoutes(app, { sql, redis, mailer });
@@ -74,6 +94,7 @@ await registerSyncRoutes(app, { sql });
 await registerMeRoutes(app, { sql });
 await registerTelemetryRoutes(app);
 await registerPushRoutes(app, { sql });
+registerMetrics(app);
 
 if (initWebPush()) {
   app.log.info('Web Push enabled (VAPID configured)');

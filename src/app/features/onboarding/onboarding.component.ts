@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, afterNextRender, computed, effect, inject, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { PresetService, type FocusPreset } from '@core/services/preset.service';
 import { NotificationService } from '@core/services/notification.service';
@@ -19,7 +19,7 @@ import { TPipe } from '@core/i18n/t.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ButtonModule, TPipe],
   template: `
-    <div class="ob" role="dialog" aria-modal="true">
+    <div class="ob" role="dialog" aria-modal="true" aria-labelledby="ob-title">
       <div class="ob__card">
         <!-- progress -->
         <div class="ob__dots" aria-hidden="true">
@@ -32,13 +32,13 @@ import { TPipe } from '@core/i18n/t.pipe';
           @case (0) {
             <div class="ob__body">
               <div class="ob__icon"><i class="pi pi-bolt"></i></div>
-              <h2 class="ob__title">{{ 'onboard.welcome.title' | t }}</h2>
+              <h2 class="ob__title" id="ob-title" tabindex="-1">{{ 'onboard.welcome.title' | t }}</h2>
               <p class="ob__text muted">{{ 'onboard.welcome.text' | t }}</p>
             </div>
           }
           @case (1) {
             <div class="ob__body">
-              <h2 class="ob__title">{{ 'onboard.rhythm.title' | t }}</h2>
+              <h2 class="ob__title" id="ob-title" tabindex="-1">{{ 'onboard.rhythm.title' | t }}</h2>
               <p class="ob__text muted">{{ 'onboard.rhythm.text' | t }}</p>
               <div class="ob__presets">
                 @for (p of presets; track p.id) {
@@ -54,7 +54,7 @@ import { TPipe } from '@core/i18n/t.pipe';
           @case (2) {
             <div class="ob__body">
               <div class="ob__icon"><i class="pi pi-bell"></i></div>
-              <h2 class="ob__title">{{ 'onboard.notif.title' | t }}</h2>
+              <h2 class="ob__title" id="ob-title" tabindex="-1">{{ 'onboard.notif.title' | t }}</h2>
               <p class="ob__text muted">{{ 'onboard.notif.text' | t }}</p>
               @if (platform.isIOS) {
                 <p class="ob__hint">{{ 'onboard.notif.ios' | t }}</p>
@@ -69,7 +69,7 @@ import { TPipe } from '@core/i18n/t.pipe';
           @case (3) {
             <div class="ob__body">
               <div class="ob__icon ob__icon--done"><i class="pi pi-check"></i></div>
-              <h2 class="ob__title">{{ 'onboard.done.title' | t }}</h2>
+              <h2 class="ob__title" id="ob-title" tabindex="-1">{{ 'onboard.done.title' | t }}</h2>
               <p class="ob__text muted">{{ 'onboard.done.text' | t }}</p>
             </div>
           }
@@ -111,6 +111,7 @@ import { TPipe } from '@core/i18n/t.pipe';
                 background: var(--accent-15); color: var(--accent); font-size: 1.8rem; margin-bottom: var(--s-1); }
     .ob__icon--done { background: rgba(125, 240, 168, 0.15); color: #7df0a8; }
     .ob__title { margin: 0; font-size: 1.4rem; color: var(--text-1); }
+    .ob__title:focus { outline: none; }
     .ob__text { margin: 0; font-size: 0.92rem; line-height: 1.5; }
     .ob__hint { font-size: 0.82rem; color: var(--warn); margin: var(--s-1) 0 0; }
     .ob__ok { color: #7df0a8; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px; }
@@ -131,6 +132,7 @@ export class OnboardingComponent {
   readonly notify = inject(NotificationService);
   readonly platform = inject(PlatformService);
   private onboarding = inject(OnboardingService);
+  private el = inject<ElementRef<HTMLElement>>(ElementRef);
 
   readonly lastStep = 3;
   readonly stepIndices = [0, 1, 2, 3];
@@ -138,6 +140,47 @@ export class OnboardingComponent {
   readonly chosen = signal<string | null>(null);
 
   readonly presets = PresetService.BUILT_INS;
+
+  constructor() {
+    // move focus into the wizard once it's rendered, and to the new step's
+    // heading on each step change (so screen readers announce it)
+    afterNextRender(() => this.focusHeading());
+    effect(() => {
+      this.step();
+      queueMicrotask(() => this.focusHeading());
+    });
+  }
+
+  /** Keep Tab focus inside the dialog; Escape skips onboarding. */
+  @HostListener('keydown', ['$event'])
+  onKeydown(e: KeyboardEvent): void {
+    if (e.key === 'Escape') { e.preventDefault(); this.finish(); return; }
+    if (e.key !== 'Tab') return;
+    const f = this.focusables();
+    if (f.length === 0) return;
+    const first = f[0];
+    const last = f[f.length - 1];
+    const active = document.activeElement as HTMLElement | null;
+    if (e.shiftKey && (active === first || active === this.heading())) {
+      e.preventDefault(); last.focus();
+    } else if (!e.shiftKey && active === last) {
+      e.preventDefault(); first.focus();
+    }
+  }
+
+  private heading(): HTMLElement | null {
+    return this.el.nativeElement.querySelector<HTMLElement>('#ob-title');
+  }
+  private focusHeading(): void {
+    this.heading()?.focus();
+  }
+  private focusables(): HTMLElement[] {
+    return Array.from(
+      this.el.nativeElement.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input, select, [tabindex]:not([tabindex="-1"])',
+      ),
+    ).filter((el) => el.offsetParent !== null);
+  }
 
   next(): void {
     if (this.step() < this.lastStep) this.step.update((s) => s + 1);

@@ -31,7 +31,10 @@ volume (`docker compose down -v && docker compose up -d`) or run it from a host
 that has `psql`:
 
 ```bash
-psql "postgres://breakfit:breakfit@localhost:5432/breakfit" -f db/schema.sql
+# uses psql inside the db container (no local psql needed):
+docker compose exec -T db psql -U breakfit -d breakfit -f /docker-entrypoint-initdb.d/01-schema.sql
+# or, from the server/ folder:
+npm run migrate:docker
 ```
 
 For a real deployment, run the same `server/` image on your host (Fly.io,

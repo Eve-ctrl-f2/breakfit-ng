@@ -21,6 +21,8 @@ interface Form {
   difficulty: Difficulty;
   unit: 'reps' | 'seconds';
   defaultAmount: number;
+  /** raw textarea text, one step per line; parsed to string[] on submit */
+  instructions: string;
 }
 
 const EMPTY_FORM: Form = {
@@ -29,6 +31,7 @@ const EMPTY_FORM: Form = {
   difficulty: 'mittel',
   unit: 'reps',
   defaultAmount: 10,
+  instructions: '',
 };
 
 /**
@@ -101,6 +104,15 @@ const EMPTY_FORM: Form = {
                          [min]="1" [max]="999" [showButtons]="true" inputStyleClass="exf__num" />
         </label>
 
+        <!-- Instructions (optional) -->
+        <label class="exf__col">
+          <span class="exf__lbl">{{ 'exercises.instructions' | t }}</span>
+          <textarea rows="3" class="exf__area"
+                    [ngModel]="form().instructions"
+                    (ngModelChange)="patch({ instructions: $event })"
+                    [placeholder]="'exercises.instructionsHint' | t"></textarea>
+        </label>
+
         @if (error()) { <p class="exf__err">{{ error() }}</p> }
 
         <div class="exf__actions">
@@ -115,6 +127,11 @@ const EMPTY_FORM: Form = {
   styles: [`
     .exf { background: var(--surface-1); border: 1px solid var(--border-2); border-radius: var(--radius);
            padding: var(--s-3); display: flex; flex-direction: column; gap: var(--s-3); margin-top: var(--s-2); }
+    .exf__col { display: flex; flex-direction: column; gap: var(--s-2); }
+    .exf__area { width: 100%; resize: vertical; min-height: 64px; padding: 10px 12px;
+                 background: var(--surface-2); color: var(--text-1);
+                 border: 1px solid var(--border-2); border-radius: 10px; font: inherit; }
+    .exf__area::placeholder { color: var(--text-3, var(--text-2)); }
     .set__h { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-2); margin: 0; }
     .exf__row { display: flex; flex-direction: column; gap: 6px; }
     .exf__lbl { font-size: 0.8rem; color: var(--text-2); }
@@ -158,13 +175,14 @@ export class CustomExerciseFormComponent {
   }
 
   /** open the form pre-filled to edit an existing custom exercise */
-  editExercise(ex: { id: string; name: string; category: ExerciseCategory; difficulty: Difficulty; unit: 'reps' | 'seconds'; defaultAmount: number }): void {
+  editExercise(ex: { id: string; name: string; category: ExerciseCategory; difficulty: Difficulty; unit: 'reps' | 'seconds'; defaultAmount: number; instructions?: string[] }): void {
     this._form.set({
       name: ex.name,
       category: ex.category,
       difficulty: ex.difficulty,
       unit: ex.unit,
       defaultAmount: ex.defaultAmount,
+      instructions: (ex.instructions ?? []).join('\n'),
     });
     this.editId.set(ex.id);
     this.error.set(null);
@@ -175,17 +193,24 @@ export class CustomExerciseFormComponent {
     this._form.update((f) => ({ ...f, ...partial }));
   }
 
+  /** textarea text -> trimmed, non-empty steps (undefined when none) */
+  private parseInstructions(text: string): string[] | undefined {
+    const steps = text.split('\n').map((s) => s.trim()).filter(Boolean);
+    return steps.length ? steps : undefined;
+  }
+
   submit(): void {
     const f = this._form();
     const name = f.name.trim();
     if (!name) { this.error.set(this.i18n.t('exercises.errName')); return; }
     if (f.defaultAmount < 1) { this.error.set(this.i18n.t('exercises.errAmount')); return; }
 
+    const instructions = this.parseInstructions(f.instructions);
     const editing = this.editId();
     if (editing) {
       this.pool.updateCustom(editing, {
         name, category: f.category, difficulty: f.difficulty,
-        unit: f.unit, defaultAmount: f.defaultAmount,
+        unit: f.unit, defaultAmount: f.defaultAmount, instructions,
       });
     } else {
       if (this.pool.all().filter((e) => e.custom).length >= 20) {
@@ -193,7 +218,7 @@ export class CustomExerciseFormComponent {
       }
       this.pool.addCustom({
         name, category: f.category, difficulty: f.difficulty,
-        unit: f.unit, defaultAmount: f.defaultAmount, intensity: 3, icon: 'pi-bolt',
+        unit: f.unit, defaultAmount: f.defaultAmount, intensity: 3, icon: 'pi-bolt', instructions,
       });
     }
     this.cancel();

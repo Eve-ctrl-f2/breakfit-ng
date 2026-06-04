@@ -1,0 +1,34 @@
+# Prometheus alerting rules for the BreakFit API.
+# Load via prometheus.yml: `rule_files: ["alerts.yml"]`.
+# The first rule needs the blackbox/static `up` metric from scraping the target;
+# the others use the app's own /metrics series.
+groups:
+  - name: breakfit-api
+    rules:
+      - alert: BreakfitApiDown
+        expr: up{job="breakfit-api"} == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: "BreakFit API target is down"
+          description: "Prometheus cannot scrape {{ $labels.instance }} for 2m."
+
+      - alert: BreakfitApiHighErrorRate
+        expr: |
+          sum(rate(breakfit_http_requests_total{status=~"5.."}[5m]))
+            / sum(rate(breakfit_http_requests_total[5m])) > 0.05
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "Elevated 5xx error rate"
+          description: "More than 5% of requests are 5xx over the last 5m."
+
+      - alert: BreakfitApiHighLatencyP95
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(breakfit_http_request_duration_ms_bucket[5m])) by (le)) > 750
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "p95 latency above 750ms"
+          description: "Request p95 latency has exceeded 750ms for 10m."

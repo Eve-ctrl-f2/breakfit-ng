@@ -44,4 +44,39 @@ export async function registerSyncRoutes(app: FastifyInstance, { sql }: Deps): P
       ORDER BY started_at DESC`;
     return rows.map((r) => ({ ...r, syncState: 'synced' }));
   });
+
+  // --- settings: whole-object last-write-wins by client `updatedAt` (epoch ms) ---
+
+  const settingsSchema = z.object({
+    settings: z.record(z.string(), z.unknown()),
+    updatedAt: z.number().int().nonnegative(),
+  });
+
+  const readSettings = async (userId: string) => {
+    const [row] = await sql`
+      SELECT settings, (extract(epoch from updated_at) * 1000)::bigint AS "updatedAt"
+      FROM user_settings WHERE user_id = ${userId} LIMIT 1`;
+    return row ? { settings: row.settings, updatedAt: Number(row.updatedAt) } : null;
+  };
+
+  // PUT /sync/settings — upsert iff incoming is newer, then return the
+  // authoritative copy so the client can adopt the winner. This single call
+  // both pushes local edits and resolves conflicts (last-write-wins).
+  app.put('/sync/settings', { preHandler: requireAuth }, async (req, reply) => {
+    const parsed = settingsSchema.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ message: 'Ungültige Einstellungen' });
+    const { settings, updatedAt } = parsed.data;
+    await sql`
+      INSERT INTO user_settings (user_id, settings, updated_at)
+      VALUES (${req.userId!}, ${JSON.stringify(settings)}::jsonb, to_timestamp(${updatedAt} / 1000.0))
+      ON CONFLICT (user_id) DO UPDATE
+        SET settings = EXCLUDED.settings, updated_at = EXCLUDED.updated_at
+        WHERE EXCLUDED.updated_at > user_settings.updated_at`;
+    return reply.send(await readSettings(req.userId!));
+  });
+
+  // GET /sync/settings — pull (null if the user has never synced settings)
+  app.get('/sync/settings', { preHandler: requireAuth }, async (req, reply) => {
+    return reply.send(await readSettings(req.userId!));
+  });
 }

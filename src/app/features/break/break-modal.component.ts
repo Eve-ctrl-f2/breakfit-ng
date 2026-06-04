@@ -15,6 +15,7 @@ import { TimerService } from '@core/services/timer.service';
 import { HistoryService } from '@core/services/history.service';
 import { MeetingService, MEETING_PRESETS } from '@core/services/meeting.service';
 import { SyncService } from '@core/api/sync.service';
+import { HealthService } from '@core/services/health.service';
 import { CATEGORY_LABELS, CATEGORY_COLOR_VAR } from '@core/data/exercises.data';
 import { TPipe } from '@core/i18n/t.pipe';
 import type { Recommendation } from '@core/models/models';
@@ -53,6 +54,27 @@ const SNOOZE_PRESETS = [2, 5, 10] as const;
             <h2 class="break__name">{{ r.exercise.name }}</h2>
             <p class="break__reason muted">{{ r.reason | t }}</p>
           </div>
+
+          @if (r.exercise.instructions?.length || r.exercise.mediaUrl) {
+            <button type="button" class="break__how-toggle"
+                    [attr.aria-expanded]="showHow()" (click)="showHow.set(!showHow())">
+              <i class="pi" [class.pi-chevron-down]="!showHow()" [class.pi-chevron-up]="showHow()" aria-hidden="true"></i>
+              {{ 'break.howto' | t }}
+            </button>
+            @if (showHow()) {
+              <div class="break__how">
+                @if (r.exercise.mediaUrl) {
+                  <img class="break__how-media" [src]="r.exercise.mediaUrl"
+                       [alt]="r.exercise.name" loading="lazy" />
+                }
+                @if (r.exercise.instructions?.length) {
+                  <ol class="break__how-steps">
+                    @for (s of r.exercise.instructions; track s) { <li>{{ s }}</li> }
+                  </ol>
+                }
+              </div>
+            }
+          }
 
           <!-- amount stepper: buttons + real input on one row, caption BELOW -->
           <div class="reps">
@@ -144,6 +166,14 @@ const SNOOZE_PRESETS = [2, 5, 10] as const;
     .reps__caption { margin: 0; font-size: 0.8rem; letter-spacing: 0.04em; text-transform: uppercase; }
 
     .break__shuffle { display: block; margin: 0 auto; }
+    .break__how-toggle { display: inline-flex; align-items: center; gap: 6px; margin: 0 auto;
+                         background: none; border: none; color: var(--accent); cursor: pointer;
+                         font-size: 0.85rem; padding: 4px 8px; }
+    .break__how { background: var(--surface-2); border: 1px solid var(--border-2);
+                  border-radius: 12px; padding: var(--s-3); margin-top: var(--s-1); }
+    .break__how-media { width: 100%; border-radius: 8px; margin-bottom: var(--s-2); display: block; }
+    .break__how-steps { margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 6px;
+                        font-size: 0.88rem; color: var(--text-1); line-height: 1.4; }
 
     .break__fb-q { text-align: center; }
     .break__fb { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--s-2); }
@@ -163,6 +193,7 @@ export class BreakModalComponent {
   private history = inject(HistoryService);
   private meetingSvc = inject(MeetingService);
   private sync = inject(SyncService);
+  private health = inject(HealthService);
 
   readonly meetingPresets = MEETING_PRESETS;
   readonly snoozePresets = SNOOZE_PRESETS;
@@ -174,6 +205,8 @@ export class BreakModalComponent {
   readonly rec = signal<Recommendation | null>(null);
   readonly amount = signal(0);
   readonly step = signal<Step>('exercise');
+  /** how-to section expanded? reset each time the modal opens */
+  readonly showHow = signal(false);
   /** internal dialog visibility, driven by the `open` input */
   readonly visible = signal(false);
 
@@ -189,6 +222,7 @@ export class BreakModalComponent {
       if (isOpen) {
         this.startedAt = new Date().toISOString();
         this.step.set('exercise');
+        this.showHow.set(false);
         const r = this.reco.next();
         this.rec.set(r);
         this.amount.set(r?.amount ?? 0);
@@ -226,14 +260,16 @@ export class BreakModalComponent {
   }
 
   async finish(feedback: -1 | 0 | 1): Promise<void> {
+    const ex = this.rec()?.exercise ?? null;
     await this.history.record({
       outcome: 'completed',
-      exercise: this.rec()?.exercise ?? null,
+      exercise: ex,
       amountDone: this.amount(),
       feedback,
       startedAt: this.startedAt,
     });
     void this.sync.push();
+    void this.health.logBreak(ex, this.amount(), this.startedAt);
     this.timer.completeBreak();
     this.close();
   }

@@ -1,0 +1,41 @@
+# Automated dependency updates. Dependabot opens PRs that CI (incl. the
+# `security` audit job) gates before merge. Grouped to limit PR noise.
+version: 2
+updates:
+  # Frontend (Angular app at repo root)
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      angular:
+        patterns: ["@angular/*", "@angular-devkit/*", "ng-packagr"]
+      primeng:
+        patterns: ["primeng", "@primeng/*", "primeicons"]
+      dev-minor-patch:
+        dependency-type: development
+        update-types: ["minor", "patch"]
+    labels: ["dependencies", "frontend"]
+
+  # Backend (Fastify API)
+  - package-ecosystem: npm
+    directory: "/server"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      prod-minor-patch:
+        dependency-type: production
+        update-types: ["minor", "patch"]
+      dev-minor-patch:
+        dependency-type: development
+        update-types: ["minor", "patch"]
+    labels: ["dependencies", "backend"]
+
+  # GitHub Actions used by the workflows
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    labels: ["dependencies", "ci"]

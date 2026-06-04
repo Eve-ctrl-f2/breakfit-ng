@@ -6,6 +6,32 @@ on:
   pull_request:
 
 jobs:
+  security:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Hard gate on CRITICAL (rare, always actionable); HIGH-and-below are
+      # reported for visibility but don't block — Dependabot opens fix PRs.
+      - name: Install (frontend)
+        run: npm install --package-lock-only
+      - name: "Audit frontend (gate: critical)"
+        run: npm audit --audit-level=critical
+      - name: "Audit frontend (report: high)"
+        run: npm audit --audit-level=high || true
+      - name: Install (backend)
+        run: npm install --package-lock-only
+        working-directory: server
+      - name: "Audit backend (gate: high)"
+        run: npm audit --audit-level=high
+        working-directory: server
+      - name: "Audit backend (report: moderate)"
+        run: npm audit --audit-level=moderate || true
+        working-directory: server
+
   frontend:
     runs-on: ubuntu-latest
     steps:

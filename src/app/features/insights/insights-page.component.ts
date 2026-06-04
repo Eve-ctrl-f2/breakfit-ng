@@ -6,6 +6,7 @@ import { HistoryService } from '@core/services/history.service';
 import { CATEGORY_LABELS, CATEGORY_COLOR_VAR } from '@core/data/exercises.data';
 import { TPipe } from '@core/i18n/t.pipe';
 import { GoalCardComponent } from './goal-card.component';
+import { RecapCardComponent } from './recap-card.component';
 import { MilestoneCardComponent } from './milestone-card.component';
 import { BodyHeatmapComponent } from './body-heatmap.component';
 import { TranslationService } from '@core/i18n/translation.service';
@@ -16,7 +17,7 @@ const WEEKDAYS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
 @Component({
   selector: 'bf-insights-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CardModule, MeterGroupModule, ButtonModule, TPipe, GoalCardComponent, MilestoneCardComponent, BodyHeatmapComponent],
+  imports: [CardModule, MeterGroupModule, ButtonModule, TPipe, GoalCardComponent, RecapCardComponent, MilestoneCardComponent, BodyHeatmapComponent],
   template: `
     <section class="container">
       <p class="section-title">{{ 'insights.title' | t }}</p>
@@ -36,6 +37,12 @@ const WEEKDAYS = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
           <span class="stat__lbl muted">{{ 'insights.stat.rate' | t }}</span>
         </div>
       </div>
+
+      <!-- weekly recap -->
+      <p-card styleClass="ins-card">
+        <p class="section-title">{{ 'recap.title' | t }}</p>
+        <bf-recap-card />
+      </p-card>
 
       <!-- weekly goal -->
       <p-card styleClass="ins-card">

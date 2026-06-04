@@ -18,6 +18,7 @@ import { apiInterceptor, errorInterceptor } from './core/api/interceptors';
 import { AuthService } from './core/api/auth.service';
 import { SyncService } from './core/api/sync.service';
 import { PlatformService } from './core/services/platform.service';
+import { ThemeService } from './core/services/theme.service';
 import { GlobalErrorHandler } from './core/error/global-error-handler';
 
 export const appConfig: ApplicationConfig = {
@@ -54,10 +55,12 @@ export const appConfig: ApplicationConfig = {
     // and start cross-platform auto-sync.
     provideAppInitializer(() => {
       inject(PlatformService); // eager — must catch beforeinstallprompt
+      inject(ThemeService); // eager — apply theme/accent before first paint
       inject(SyncService).enableAutoSync();
       const auth = inject(AuthService);
-      // rotate the session token on boot, then load the user
-      return auth.refresh().then(() => auth.loadMe());
+      const sync = inject(SyncService);
+      // rotate token, load user, then reconcile settings across devices
+      return auth.refresh().then(() => auth.loadMe()).then(() => sync.syncSettings());
     }),
     // Global crash reporting — forwards uncaught errors to the reporting seam.
     { provide: ErrorHandler, useClass: GlobalErrorHandler },

@@ -1,7 +1,8 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { environment } from '@env/environment';
 import { SyncService } from '../api/sync.service';
 import { AuthService } from '../api/auth.service';
+import { SettingsService } from './settings.service';
 import { IdbService } from './storage/idb.service';
 
 export type SyncState = 'idle' | 'syncing' | 'offline' | 'error';
@@ -26,6 +27,7 @@ export type SyncState = 'idle' | 'syncing' | 'offline' | 'error';
 export class SyncCoordinatorService {
   private sync = inject(SyncService);
   private auth = inject(AuthService);
+  private settings = inject(SettingsService);
   private idb = inject(IdbService);
 
   readonly state = signal<SyncState>('idle');
@@ -34,7 +36,21 @@ export class SyncCoordinatorService {
   readonly hasPending = computed(() => this.pending() > 0);
 
   private timer: ReturnType<typeof setInterval> | null = null;
+  private settingsTimer: ReturnType<typeof setTimeout> | null = null;
   private started = false;
+
+  constructor() {
+    // Push settings shortly after a local edit (debounced), so a change on one
+    // device reaches the others quickly instead of waiting for the next trigger.
+    let first = true;
+    effect(() => {
+      this.settings.updatedAt(); // track local edits
+      if (first) { first = false; return; }
+      if (!environment.cloudEnabled) return;
+      if (this.settingsTimer) clearTimeout(this.settingsTimer);
+      this.settingsTimer = setTimeout(() => void this.sync.syncSettings(), 1500);
+    });
+  }
 
   /** Called once from the app shell. Sets up triggers; safe to call repeatedly. */
   init(): void {
@@ -64,6 +80,7 @@ export class SyncCoordinatorService {
     this.state.set('syncing');
     try {
       await this.sync.push();
+      await this.sync.syncSettings();
       this.lastSyncedAt.set(Date.now());
       await this.refreshPending();
       this.state.set('idle');

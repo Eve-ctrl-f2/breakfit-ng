@@ -25,7 +25,7 @@ import { TPipe } from '@core/i18n/t.pipe';
 
       <header class="timer__head">
         <p class="section-title">{{ phaseKey() | t }}</p>
-        <p class="muted timer__sub">{{ subKey() | t }}</p>
+        <p class="muted timer__sub" role="status" aria-live="polite">{{ subKey() | t }}</p>
       </header>
 
       <div class="timer__dial">
@@ -34,8 +34,10 @@ import { TPipe } from '@core/i18n/t.pipe';
           [max]="100" [min]="0" [size]="240" [strokeWidth]="6"
           [readonly]="true" [showValue]="false"
           valueColor="var(--accent)" rangeColor="var(--border-2)"
+          aria-hidden="true"
         />
-        <div class="timer__readout mono">{{ timer.mmss() }}</div>
+        <div class="timer__readout mono" role="timer"
+             [attr.aria-label]="(phaseKey() | t) + ': ' + timer.mmss()">{{ timer.mmss() }}</div>
       </div>
 
       <div class="timer__cycles" [attr.aria-label]="'a11y.cycles' | t">

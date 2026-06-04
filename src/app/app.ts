@@ -21,23 +21,25 @@ import { TPipe } from './core/i18n/t.pipe';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterOutlet, RouterLink, RouterLinkActive, BreakModalComponent, OnboardingComponent, TPipe],
   template: `
-    <div class="app-shell dark">
+    <div class="app-shell">
+      <a class="skip-link" href="#main">{{ 'a11y.skip' | t }}</a>
+
       <!-- desktop / mouse: top pill nav -->
       <nav class="top-nav" [attr.aria-label]="'a11y.nav' | t">
-        <a routerLink="/timer" routerLinkActive="active"><i class="pi pi-clock"></i> {{ 'nav.timer' | t }}</a>
-        <a routerLink="/insights" routerLinkActive="active"><i class="pi pi-chart-bar"></i> {{ 'nav.insights' | t }}</a>
-        <a routerLink="/settings" routerLinkActive="active"><i class="pi pi-cog"></i> {{ 'nav.settings' | t }}</a>
+        <a routerLink="/timer" routerLinkActive="active" ariaCurrentWhenActive="page"><i class="pi pi-clock" aria-hidden="true"></i> {{ 'nav.timer' | t }}</a>
+        <a routerLink="/insights" routerLinkActive="active" ariaCurrentWhenActive="page"><i class="pi pi-chart-bar" aria-hidden="true"></i> {{ 'nav.insights' | t }}</a>
+        <a routerLink="/settings" routerLinkActive="active" ariaCurrentWhenActive="page"><i class="pi pi-cog" aria-hidden="true"></i> {{ 'nav.settings' | t }}</a>
       </nav>
 
-      <main class="app-main">
+      <main class="app-main" id="main" tabindex="-1">
         <router-outlet />
       </main>
 
       <!-- phone + touch: bottom nav -->
       <nav class="bottom-nav" [attr.aria-label]="'a11y.nav' | t">
-        <a routerLink="/timer" routerLinkActive="active"><i class="pi pi-clock"></i><span>{{ 'nav.timer' | t }}</span></a>
-        <a routerLink="/insights" routerLinkActive="active"><i class="pi pi-chart-bar"></i><span>{{ 'nav.insights' | t }}</span></a>
-        <a routerLink="/settings" routerLinkActive="active"><i class="pi pi-cog"></i><span>{{ 'nav.settings' | t }}</span></a>
+        <a routerLink="/timer" routerLinkActive="active" ariaCurrentWhenActive="page"><i class="pi pi-clock" aria-hidden="true"></i><span>{{ 'nav.timer' | t }}</span></a>
+        <a routerLink="/insights" routerLinkActive="active" ariaCurrentWhenActive="page"><i class="pi pi-chart-bar" aria-hidden="true"></i><span>{{ 'nav.insights' | t }}</span></a>
+        <a routerLink="/settings" routerLinkActive="active" ariaCurrentWhenActive="page"><i class="pi pi-cog" aria-hidden="true"></i><span>{{ 'nav.settings' | t }}</span></a>
       </nav>
 
       <!-- global break modal, opened when a focus interval elapses -->

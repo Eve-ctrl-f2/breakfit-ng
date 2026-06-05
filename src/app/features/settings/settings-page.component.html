@@ -1,0 +1,196 @@
+<section class="container">
+  <p class="section-title">{{ 'settings.title' | t }}</p>
+
+  <!-- Timer -->
+  <p-card styleClass="set-card">
+    <p class="set__h">{{ 'settings.timer' | t }}</p>
+    <div class="set__row">
+      <span>{{ 'settings.focus' | t }} <b class="mono">{{ st().focusMinutes }} {{ 'settings.min' | t }}</b></span>
+      <p-slider [ngModel]="st().focusMinutes" (ngModelChange)="patch({ focusMinutes: $event })"
+                [min]="5" [max]="60" [step]="5" />
+    </div>
+    <div class="set__row">
+      <span>{{ 'settings.break' | t }} <b class="mono">{{ st().breakMinutes }} {{ 'settings.min' | t }}</b></span>
+      <p-slider [ngModel]="st().breakMinutes" (ngModelChange)="patch({ breakMinutes: $event })"
+                [min]="1" [max]="15" [step]="1" />
+    </div>
+    <div class="set__row">
+      <span>{{ 'settings.longBreakEvery' | t }} <b class="mono">{{ st().longBreakEvery }}</b></span>
+      <p-slider [ngModel]="st().longBreakEvery" (ngModelChange)="patch({ longBreakEvery: $event })"
+                [min]="2" [max]="8" [step]="1" />
+    </div>
+    <div class="set__toggle">
+      <span>{{ 'settings.autoStart' | t }}</span>
+      <p-toggleswitch [ngModel]="st().autoStartNextFocus"
+                      (ngModelChange)="patch({ autoStartNextFocus: $event })" />
+    </div>
+
+    <div class="set__restdays">
+      <span>{{ 'settings.restDays' | t }}</span>
+      <div class="set__wd" role="group" [attr.aria-label]="'settings.restDays' | t">
+        @for (d of weekdays; track d.idx) {
+          <button type="button" class="set__wd-btn"
+                  [class.set__wd-btn--on]="isRestDay(d.idx)"
+                  [attr.aria-pressed]="isRestDay(d.idx)"
+                  (click)="toggleRestDay(d.idx)">{{ d.label }}</button>
+        }
+      </div>
+      <p class="muted set__hint">{{ 'settings.restDaysHint' | t }}</p>
+    </div>
+  </p-card>
+
+  <!-- Presets -->
+  <p-card styleClass="set-card">
+    <p class="set__h">{{ 'presets.title' | t }}</p>
+    <bf-preset-card />
+  </p-card>
+
+  <!-- Difficulty -->
+  <p-card styleClass="set-card">
+    <p class="set__h">{{ 'settings.difficulty' | t }}</p>
+    <p-selectbutton [options]="difficulties()" optionLabel="label" optionValue="value"
+                    [allowEmpty]="false"
+                    [ngModel]="st().difficulty"
+                    (ngModelChange)="patch({ difficulty: $event })" />
+  </p-card>
+
+  <!-- Selection mode -->
+  <p-card styleClass="set-card">
+    <p class="set__h">{{ 'settings.mode' | t }}</p>
+    <p-selectbutton [options]="modes()" optionLabel="label" optionValue="value"
+                    [allowEmpty]="false"
+                    [ngModel]="st().selectionMode"
+                    (ngModelChange)="patch({ selectionMode: $event })" />
+    <p class="muted set__hint">{{ modeHintKey() | t }}</p>
+  </p-card>
+
+  <!-- Exercise pool -->
+  <p-card styleClass="set-card">
+    <p class="set__h">
+      {{ 'settings.pool' | t }}
+      <span class="muted">{{ 'settings.poolActive' | t:{ count: pool.active().length } }}</span>
+    </p>
+    @for (ex of pool.all(); track ex.id) {
+      <div class="ex">
+        <span class="ex__cat" [style.background]="catColor(ex.category)"></span>
+        <span class="ex__name">{{ ex.name }}</span>
+        @if (ex.custom) {
+          <button class="ex__del" (click)="form()?.editExercise(ex)"
+                  [attr.aria-label]="'common.edit' | t" data-testid="exercise-edit">
+            <i class="pi pi-pencil"></i>
+          </button>
+          <button class="ex__del" (click)="pool.removeCustom(ex.id)"
+                  [attr.aria-label]="'common.delete' | t" data-testid="exercise-delete">
+            <i class="pi pi-trash"></i>
+          </button>
+        }
+        <p-tag [value]="cat(ex.category)" severity="secondary" styleClass="ex__tag" />
+        <p-toggleswitch [ngModel]="ex.enabled" (ngModelChange)="pool.toggle(ex.id, $event)" />
+      </div>
+    }
+    <bf-custom-exercise-form />
+  </p-card>
+
+  <!-- Notifications -->
+  <p-card styleClass="set-card">
+    <p class="set__h">{{ 'settings.notif' | t }}</p>
+    <div class="set__toggle">
+      <span>{{ 'settings.push' | t }}</span>
+      <p-toggleswitch [ngModel]="st().notificationsEnabled"
+                      (ngModelChange)="onNotifToggle($event)" />
+    </div>
+    <div class="set__toggle">
+      <span>{{ 'settings.sound' | t }}</span>
+      <p-toggleswitch [ngModel]="st().soundEnabled"
+                      (ngModelChange)="patch({ soundEnabled: $event })" />
+    </div>
+    <bf-push-control />
+    @if (notify.permission() !== 'granted') {
+      <p class="muted set__hint">{{ 'settings.notifHint' | t }}</p>
+    }
+  </p-card>
+
+  <!-- Appearance -->
+  <p-card styleClass="set-card">
+    <p class="set__h">{{ 'settings.appearance' | t }}</p>
+    <p-selectbutton [options]="themeOptions" optionLabel="label" optionValue="value"
+                    [allowEmpty]="false"
+                    [ngModel]="st().theme"
+                    (ngModelChange)="patch({ theme: $event })" />
+    <div class="set__accents" role="group" [attr.aria-label]="'settings.accent' | t">
+      @for (a of accents; track a) {
+        <button type="button" class="set__accent"
+                [class.set__accent--on]="st().accent === a"
+                [style.background]="accentColor(a)"
+                [attr.aria-pressed]="st().accent === a"
+                [attr.aria-label]="a" (click)="patch({ accent: a })"></button>
+      }
+    </div>
+  </p-card>
+
+  <!-- Language -->
+  <p-card styleClass="set-card">
+    <p class="set__h">{{ 'settings.language' | t }}</p>
+    <p-selectbutton [options]="i18n.supported" optionLabel="label" optionValue="value"
+                    [allowEmpty]="false"
+                    [ngModel]="i18n.locale()"
+                    (ngModelChange)="setLocale($event)" />
+  </p-card>
+
+  <!-- Health (Apple Health / Google Fit / Health Connect) -->
+  <p-card styleClass="set-card">
+    <p class="set__h">{{ 'settings.health' | t }}</p>
+    @if (health.available()) {
+      <div class="set__toggle">
+        <span>{{ 'settings.healthLink' | t }}</span>
+        <p-toggleswitch [ngModel]="health.linked()" (ngModelChange)="toggleHealth($event)" />
+      </div>
+    } @else {
+      <p class="muted set__hint">{{ 'settings.healthUnavailable' | t }}</p>
+    }
+    <div class="set__cloud-actions">
+      <p-button [label]="'settings.healthExport' | t" icon="pi pi-download"
+                [outlined]="true" size="small" (onClick)="health.exportTcx()" />
+    </div>
+    <p class="muted set__hint">{{ 'settings.healthHint' | t }}</p>
+  </p-card>
+
+  <!-- Cloud sync — only when flag is on -->
+  @if (cloudEnabled) {
+    <p-card styleClass="set-card">
+      <p class="set__h">{{ 'settings.cloud' | t }}</p>
+      @if (!auth.isAuthed()) {
+        <p class="muted set__hint">{{ 'settings.cloudHint' | t }}</p>
+        <p-button [label]="'settings.signin' | t" icon="pi pi-cloud" routerLink="/auth/login" />
+      } @else {
+        <p class="muted set__hint">{{ auth.user()?.email }}</p>
+        <div class="set__cloud-actions">
+          <p-button [label]="'settings.export' | t" icon="pi pi-download"
+                    [outlined]="true" size="small" (onClick)="exportData()" />
+          <p-button [label]="'settings.logout' | t" icon="pi pi-sign-out"
+                    [text]="true" severity="secondary" size="small" (onClick)="auth.logout()" />
+          <p-button [label]="'settings.logoutAll' | t" icon="pi pi-power-off"
+                    [text]="true" severity="danger" size="small" (onClick)="auth.logoutAllDevices()" />
+        </div>
+      }
+    </p-card>
+  }
+
+  <!-- Install / PWA -->
+  <p-card styleClass="set-card">
+    <p class="set__h">{{ 'install.title' | t }}</p>
+    <bf-install-card />
+  </p-card>
+
+  <!-- Feedback -->
+  <p-card styleClass="set-card">
+    <p class="set__h">{{ 'settings.feedback' | t }}</p>
+    <p-button [label]="'settings.sendFeedback' | t" icon="pi pi-envelope" [outlined]="true"
+              (onClick)="sendFeedback()" />
+  </p-card>
+
+  <!-- About -->
+  <footer class="about muted">
+    {{ 'settings.about' | t:{ version: version, date: buildDate() } }}
+  </footer>
+</section>

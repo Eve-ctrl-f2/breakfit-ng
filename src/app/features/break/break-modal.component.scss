@@ -1,0 +1,32 @@
+.break__title { font-family: var(--font-display); font-weight: 700; }
+.break__rec { text-align: center; padding: var(--s-2) 0 var(--s-3); }
+.break__cat { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem;
+              text-transform: uppercase; letter-spacing: 0.06em; }
+.break__name { margin: var(--s-2) 0 4px; font-size: 1.6rem; }
+.break__reason { margin: 0; font-size: 0.9rem; }
+
+.reps { display: flex; flex-direction: column; align-items: center; gap: var(--s-2);
+        margin: var(--s-2) 0 var(--s-3); }
+.reps__row { display: flex; align-items: center; gap: var(--s-3); justify-content: center; }
+.reps__caption { margin: 0; font-size: 0.8rem; letter-spacing: 0.04em; text-transform: uppercase; }
+
+.break__shuffle { display: block; margin: 0 auto; }
+.break__how-toggle { display: inline-flex; align-items: center; gap: 6px; margin: 0 auto;
+                     background: none; border: none; color: var(--accent); cursor: pointer;
+                     font-size: 0.85rem; padding: 4px 8px; }
+.break__how { background: var(--surface-2); border: 1px solid var(--border-2);
+              border-radius: 12px; padding: var(--s-3); margin-top: var(--s-1); }
+.break__how-media { width: 100%; border-radius: 8px; margin-bottom: var(--s-2); display: block; }
+.break__how-steps { margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 6px;
+                    font-size: 0.88rem; color: var(--text-1); line-height: 1.4; }
+
+.break__fb-q { text-align: center; }
+.break__fb { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--s-2); }
+.break__meeting { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-2); }
+
+.break__actions { display: flex; flex-direction: column; gap: var(--s-2); width: 100%; }
+.break__row { display: flex; gap: var(--s-2); }
+:host ::ng-deep .break__flex { flex: 1 1 0; min-width: 0; }
+:host ::ng-deep .break__flex .p-button { width: 100%; }
+:host ::ng-deep .break__done .p-button { width: 100%; }
+.break__skip { align-self: center; }

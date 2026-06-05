@@ -1,0 +1,19 @@
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--s-3); margin-bottom: var(--s-4); }
+.stat { background: var(--surface-1); border: 1px solid var(--border-1); border-radius: var(--radius);
+        padding: var(--s-3); text-align: center; display: flex; flex-direction: column; gap: 4px; }
+.stat__num { font-size: 2rem; font-weight: 700; color: var(--accent); }
+.stat__lbl { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; }
+:host ::ng-deep .ins-card { margin-bottom: var(--s-3); }
+.ins-card__head { display: flex; justify-content: space-between; align-items: center; }
+.bars { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: var(--s-2); height: 120px; align-items: end; }
+.bar { display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: end; }
+.bar__track { width: 60%; height: 90px; display: flex; align-items: end; }
+.bar__fill { width: 100%; min-height: 3px; background: var(--accent); border-radius: 4px 4px 0 0; transition: height .3s; }
+.bar__lbl { font-size: 0.72rem; }
+.hist { display: flex; align-items: center; gap: var(--s-2); padding: 8px 0; border-bottom: 1px solid var(--border-1); }
+.hist:last-child { border-bottom: none; }
+.hist__dot { width: 8px; height: 8px; border-radius: 999px; background: var(--accent); flex: 0 0 auto; }
+.hist__dot--skip { background: var(--text-3); }
+.hist__name { flex: 1 1 auto; }
+.hist__amt { flex: 0 0 auto; }
+.hist__time { flex: 0 0 auto; font-size: 0.78rem; }

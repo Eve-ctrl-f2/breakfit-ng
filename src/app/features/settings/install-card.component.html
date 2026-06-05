@@ -1,0 +1,14 @@
+@if (platform.isStandalone() || platform.installed()) {
+  <p class="muted install__ok"><i class="pi pi-check-circle"></i> {{ 'install.done' | t }}</p>
+} @else if (platform.canInstall()) {
+  <p class="muted install__txt">{{ 'install.benefit' | t }}</p>
+  <p-button [label]="'install.cta' | t" icon="pi pi-download" (onClick)="install()" />
+} @else if (platform.showIosInstallHint()) {
+  <p class="muted install__txt">{{ 'install.iosHint' | t }}</p>
+  <ol class="install__steps muted">
+    <li>{{ 'install.iosStep1' | t }}</li>
+    <li>{{ 'install.iosStep2' | t }}</li>
+  </ol>
+} @else {
+  <p class="muted install__txt">{{ 'install.unavailable' | t }}</p>
+}

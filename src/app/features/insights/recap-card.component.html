@@ -1,0 +1,31 @@
+<div class="recap">
+  <div class="recap__top">
+    <div>
+      <span class="recap__num mono">{{ r().thisWeek }}</span>
+      <span class="muted recap__lbl">{{ 'recap.label' | t }}</span>
+    </div>
+    @if (r().thisWeek > 0 || r().lastWeek > 0) {
+      <span class="recap__delta" [class]="'recap__delta--' + trend()">
+        <i class="pi" [class.pi-arrow-up]="trend() === 'up'"
+                      [class.pi-arrow-down]="trend() === 'down'"
+                      [class.pi-minus]="trend() === 'same'" aria-hidden="true"></i>
+        {{ deltaText() }}
+      </span>
+    }
+  </div>
+
+  @if (r().thisWeek === 0 && r().lastWeek === 0) {
+    <p class="muted recap__empty">{{ 'recap.empty' | t }}</p>
+  } @else {
+    <div class="recap__bars" role="img" [attr.aria-label]="deltaText()">
+      @for (d of days; track d.idx) {
+        <div class="recap__col">
+          <div class="recap__bar-track">
+            <div class="recap__bar" [style.height.%]="barPct(d.idx)"></div>
+          </div>
+          <span class="recap__day muted">{{ d.label }}</span>
+        </div>
+      }
+    </div>
+  }
+</div>

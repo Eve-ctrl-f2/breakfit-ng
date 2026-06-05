@@ -1,0 +1,37 @@
+<div class="presets">
+  @for (p of presets.all(); track p.id) {
+    <div class="preset" [class.preset--custom]="p.custom">
+      <div class="preset__info">
+        <span class="preset__name">{{ p.name }}</span>
+        <span class="preset__meta muted">
+          {{ p.focusMinutes }}/{{ p.breakMinutes }} min
+        </span>
+      </div>
+      <div class="preset__acts">
+        <p-button [label]="'presets.apply' | t" size="small" [outlined]="true"
+                  (onClick)="apply(p)" />
+        @if (p.custom) {
+          <button class="preset__del" (click)="presets.delete(p.id)"
+                  [attr.aria-label]="'common.delete' | t">
+            <i class="pi pi-trash"></i>
+          </button>
+        }
+      </div>
+    </div>
+  }
+
+  <!-- save current settings as custom preset -->
+  @if (!saving()) {
+    <p-button [label]="'presets.saveCurrentBtn' | t" icon="pi pi-bookmark"
+              [text]="true" size="small" (onClick)="saving.set(true)" />
+  } @else {
+    <div class="preset-save">
+      <input pInputText [(ngModel)]="saveName"
+             [placeholder]="'presets.namePlaceholder' | t" maxlength="40" />
+      <p-button [label]="'common.save' | t" size="small" icon="pi pi-check"
+                [disabled]="!saveName.trim()" (onClick)="savePreset()" />
+      <p-button [label]="'common.cancel' | t" size="small" severity="secondary"
+                [outlined]="true" (onClick)="saving.set(false)" />
+    </div>
+  }
+</div>

@@ -1,0 +1,18 @@
+.goal { display: flex; flex-direction: column; gap: var(--s-2); }
+.goal__top { display: flex; justify-content: space-between; align-items: flex-start; }
+.goal__num { font-size: 1.6rem; font-weight: 700; color: var(--accent); }
+.goal__num--done { color: #7df0a8; }
+.goal__sep { color: var(--text-3); margin: 0 2px; }
+.goal__lbl { display: block; font-size: 0.75rem; text-transform: uppercase;
+             letter-spacing: 0.05em; margin-top: 2px; }
+.goal__badge { background: var(--accent-15); color: var(--accent); font-size: 0.78rem;
+               border: 1px solid var(--accent-25); border-radius: 999px; padding: 4px 10px; }
+:host ::ng-deep .goal__bar { border-radius: 999px; }
+:host ::ng-deep .goal__bar .p-progressbar-value { background: var(--accent); border-radius: 999px; }
+:host ::ng-deep .goal__bar.p-progressbar { background: var(--surface-3); height: 6px; }
+.goal__target { display: flex; justify-content: space-between; align-items: center; }
+.goal__stepper { display: flex; align-items: center; gap: var(--s-2); }
+.goal__step { background: var(--surface-2); border: 1px solid var(--border-2); color: var(--text-1);
+              border-radius: 8px; width: 28px; height: 28px; cursor: pointer; font-size: 1.1rem;
+              display: grid; place-items: center; transition: background .12s; }
+.goal__step:hover { background: var(--surface-3); }

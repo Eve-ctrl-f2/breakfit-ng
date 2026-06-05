@@ -1,0 +1,28 @@
+<div class="goal">
+  <div class="goal__top">
+    <div>
+      <span class="goal__num mono" [class.goal__num--done]="goal.weeklyDone()">
+        {{ goal.weeklyProgress() }}<span class="goal__sep">/</span>{{ goal.weeklyTarget() }}
+      </span>
+      <span class="muted goal__lbl">{{ 'goal.label' | t }}</span>
+    </div>
+    @if (goal.weeklyDone()) {
+      <span class="goal__badge">{{ 'goal.done' | t }}</span>
+    }
+  </div>
+
+  <p-progressbar
+    [value]="goal.weeklyPercent()"
+    [showValue]="false"
+    styleClass="goal__bar"
+  />
+
+  <div class="goal__target">
+    <span class="muted" style="font-size:0.8rem">{{ 'goal.target' | t }}</span>
+    <div class="goal__stepper">
+      <button class="goal__step" (click)="dec()" aria-label="-">−</button>
+      <span class="mono">{{ goal.weeklyTarget() }}</span>
+      <button class="goal__step" (click)="inc()" aria-label="+">+</button>
+    </div>
+  </div>
+</div>

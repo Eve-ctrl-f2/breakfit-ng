@@ -1,0 +1,29 @@
+.ob { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center;
+      background: rgba(4, 4, 8, 0.92); backdrop-filter: blur(8px);
+      padding: var(--s-3); padding-bottom: calc(var(--s-3) + env(safe-area-inset-bottom)); }
+.ob__card { width: 100%; max-width: 380px; background: var(--surface-1);
+            border: 1px solid var(--border-2); border-radius: 20px; padding: var(--s-4);
+            display: flex; flex-direction: column; gap: var(--s-4); }
+.ob__dots { display: flex; gap: 6px; justify-content: center; }
+.ob__dot { width: 7px; height: 7px; border-radius: 999px; background: var(--border-3); transition: background .2s, width .2s; }
+.ob__dot--active { background: var(--accent); width: 20px; }
+.ob__body { display: flex; flex-direction: column; align-items: center; gap: var(--s-2);
+            text-align: center; min-height: 220px; justify-content: center; }
+.ob__icon { width: 64px; height: 64px; border-radius: 999px; display: grid; place-items: center;
+            background: var(--accent-15); color: var(--accent); font-size: 1.8rem; margin-bottom: var(--s-1); }
+.ob__icon--done { background: rgba(125, 240, 168, 0.15); color: #7df0a8; }
+.ob__title { margin: 0; font-size: 1.4rem; color: var(--text-1); }
+.ob__title:focus { outline: none; }
+.ob__text { margin: 0; font-size: 0.92rem; line-height: 1.5; }
+.ob__hint { font-size: 0.82rem; color: var(--warn); margin: var(--s-1) 0 0; }
+.ob__ok { color: #7df0a8; font-size: 0.9rem; display: inline-flex; align-items: center; gap: 6px; }
+.ob__presets { display: flex; flex-direction: column; gap: var(--s-2); width: 100%; margin-top: var(--s-2); }
+.ob__preset { display: flex; justify-content: space-between; align-items: center;
+              background: var(--surface-2); border: 1px solid var(--border-2); color: var(--text-1);
+              border-radius: 12px; padding: 12px 14px; cursor: pointer; transition: border-color .15s, background .15s; }
+.ob__preset:hover { border-color: var(--border-3); }
+.ob__preset--sel { border-color: var(--accent); background: var(--accent-08); }
+.ob__preset-name { font-size: 0.95rem; }
+.ob__preset-meta { font-size: 0.82rem; }
+.ob__nav { display: flex; justify-content: space-between; align-items: center; gap: var(--s-2); }
+:host ::ng-deep .ob__nav .p-button { white-space: nowrap; }

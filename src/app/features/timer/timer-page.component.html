@@ -1,0 +1,72 @@
+<section class="container timer">
+  @if (meeting.isActive()) {
+    <div class="meeting-strip">
+      <span class="meeting-strip__txt">
+        <i class="pi pi-calendar"></i> {{ 'meeting.active' | t }} · {{ meeting.remainingLabel() }}
+      </span>
+      <button class="meeting-strip__end" (click)="meeting.end()">{{ 'meeting.end' | t }}</button>
+    </div>
+  }
+
+  <header class="timer__head">
+    <p class="section-title">{{ phaseKey() | t }}</p>
+    <p class="muted timer__sub" role="status" aria-live="polite">{{ subKey() | t }}</p>
+  </header>
+
+  <div class="timer__dial">
+    <p-knob
+      [ngModel]="dialValue()"
+      [max]="100" [min]="0" [size]="240" [strokeWidth]="6"
+      [readonly]="true" [showValue]="false"
+      valueColor="var(--accent)" rangeColor="var(--border-2)"
+      aria-hidden="true"
+    />
+    <div class="timer__readout mono" role="timer"
+         [attr.aria-label]="(phaseKey() | t) + ': ' + timer.mmss()">{{ timer.mmss() }}</div>
+  </div>
+
+  <div class="timer__cycles" [attr.aria-label]="'a11y.cycles' | t">
+    @for (i of cyclePips(); track i) {
+      <span class="pip" [class.pip--done]="i < state().cyclesCompleted"></span>
+    }
+  </div>
+
+  <div class="timer__actions">
+    @if (state().phase === 'idle') {
+      <p-button [label]="'timer.start' | t" icon="pi pi-play" size="large" (onClick)="timer.startFocus()" />
+    } @else if (state().running) {
+      <p-button [label]="'timer.pause' | t" icon="pi pi-pause" size="large"
+                severity="secondary" styleClass="timer__pause" (onClick)="timer.pause()" />
+      <p-button [label]="'timer.stop' | t" icon="pi pi-stop" [text]="true" severity="danger" (onClick)="timer.reset()" />
+    } @else {
+      <p-button [label]="'timer.resume' | t" icon="pi pi-play" size="large" (onClick)="timer.resume()" />
+      <p-button [label]="'timer.stop' | t" icon="pi pi-stop" [text]="true" severity="danger" (onClick)="timer.reset()" />
+    }
+  </div>
+
+  @if (state().phase === 'idle') {
+    <p class="muted timer__hint">
+      {{ 'timer.hint' | t:{ focus: settings.settings().focusMinutes, break: settings.settings().breakMinutes } }}
+    </p>
+  }
+
+  <!-- proactive meeting control (also reachable from the break modal) -->
+  @if (!meeting.isActive()) {
+    @if (!meetingMenu()) {
+      <p-button [label]="'meeting.start' | t" icon="pi pi-calendar"
+                [outlined]="true" severity="secondary"
+                styleClass="timer__meeting-trigger" (onClick)="meetingMenu.set(true)" />
+    } @else {
+      <div class="timer__meeting">
+        <span class="timer__meeting-q">{{ 'meeting.choose' | t }}</span>
+        <div class="timer__meeting-grid">
+          @for (m of meetingPresets; track m) {
+            <p-button [label]="m + ' min'" [outlined]="true" (onClick)="startMeeting(m)" />
+          }
+        </div>
+        <p-button [label]="'common.cancel' | t" [text]="true" severity="secondary"
+                  styleClass="timer__meeting-cancel" (onClick)="meetingMenu.set(false)" />
+      </div>
+    }
+  }
+</section>

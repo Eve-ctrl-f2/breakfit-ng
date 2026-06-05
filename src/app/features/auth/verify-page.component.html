@@ -1,0 +1,11 @@
+<section class="container auth">
+  <h1 class="auth__title mono">{{ 'auth.verify.title' | t }}</h1>
+  <p class="muted auth__sub">{{ 'auth.verify.sub' | t:{ email: email() } }}</p>
+
+  <p-inputotp [(ngModel)]="code" [length]="6" [integerOnly]="true" />
+
+  @if (error()) { <p-message severity="error">{{ error() }}</p-message> }
+
+  <p-button [label]="'auth.confirm' | t" icon="pi pi-check" [loading]="loading()"
+            [disabled]="code().length < 6" (onClick)="submit()" styleClass="auth__btn" />
+</section>

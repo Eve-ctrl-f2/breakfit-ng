@@ -1,0 +1,61 @@
+@if (total() === 0) {
+  <p class="muted">{{ 'heatmap.empty' | t }}</p>
+} @else {
+  <div class="hm">
+    <svg viewBox="0 0 220 430" class="hm__svg" role="img"
+         [attr.aria-label]="'heatmap.title' | t">
+      <!-- base silhouette outline -->
+      <g fill="var(--surface-3)" stroke="var(--border-3)" stroke-width="1">
+        <circle cx="110" cy="40" r="26" />
+        <rect x="100" y="64" width="20" height="16" rx="6" />
+        <rect x="62" y="80" width="96" height="120" rx="26" />
+        <rect x="44" y="92" width="22" height="120" rx="11" />
+        <rect x="154" y="92" width="22" height="120" rx="11" />
+        <rect x="74" y="196" width="32" height="150" rx="14" />
+        <rect x="114" y="196" width="32" height="150" rx="14" />
+      </g>
+
+      <!-- tinted regions (fill-opacity = relative 7-day volume) -->
+      <g stroke="none">
+        <!-- dehnen: neck -->
+        <rect x="100" y="64" width="20" height="16" rx="6"
+              [attr.fill]="color('dehnen')" [attr.fill-opacity]="op('dehnen')" />
+        <!-- schultern -->
+        <ellipse cx="68" cy="92" rx="16" ry="11"
+                 [attr.fill]="color('schultern')" [attr.fill-opacity]="op('schultern')" />
+        <ellipse cx="152" cy="92" rx="16" ry="11"
+                 [attr.fill]="color('schultern')" [attr.fill-opacity]="op('schultern')" />
+        <!-- kraft: arms -->
+        <rect x="44" y="96" width="22" height="116" rx="11"
+              [attr.fill]="color('kraft')" [attr.fill-opacity]="op('kraft')" />
+        <rect x="154" y="96" width="22" height="116" rx="11"
+              [attr.fill]="color('kraft')" [attr.fill-opacity]="op('kraft')" />
+        <!-- cardio: chest centre -->
+        <rect x="80" y="92" width="60" height="44" rx="14"
+              [attr.fill]="color('cardio')" [attr.fill-opacity]="op('cardio')" />
+        <!-- core: abdomen -->
+        <rect x="78" y="138" width="64" height="34" rx="10"
+              [attr.fill]="color('core')" [attr.fill-opacity]="op('core')" />
+        <!-- ruecken: lower torso band -->
+        <rect x="70" y="172" width="80" height="26" rx="10"
+              [attr.fill]="color('ruecken')" [attr.fill-opacity]="op('ruecken')" />
+        <!-- beine -->
+        <rect x="74" y="200" width="32" height="144" rx="14"
+              [attr.fill]="color('beine')" [attr.fill-opacity]="op('beine')" />
+        <rect x="114" y="200" width="32" height="144" rx="14"
+              [attr.fill]="color('beine')" [attr.fill-opacity]="op('beine')" />
+      </g>
+    </svg>
+
+    <ul class="hm__legend">
+      @for (c of categories; track c) {
+        <li class="hm__row">
+          <span class="hm__dot" [style.background]="color(c)" [style.opacity]="op(c)"></span>
+          <span class="hm__name">{{ label(c) }}</span>
+          <span class="hm__count mono muted">{{ count(c) }}</span>
+        </li>
+      }
+    </ul>
+  </div>
+  <p class="muted hm__hint">{{ 'heatmap.hint' | t }}</p>
+}

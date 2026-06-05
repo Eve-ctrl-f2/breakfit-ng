@@ -15,27 +15,8 @@ import { TPipe } from '@core/i18n/t.pipe';
   selector: 'bf-install-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [ButtonModule, TPipe],
-  template: `
-    @if (platform.isStandalone() || platform.installed()) {
-      <p class="muted install__ok"><i class="pi pi-check-circle"></i> {{ 'install.done' | t }}</p>
-    } @else if (platform.canInstall()) {
-      <p class="muted install__txt">{{ 'install.benefit' | t }}</p>
-      <p-button [label]="'install.cta' | t" icon="pi pi-download" (onClick)="install()" />
-    } @else if (platform.showIosInstallHint()) {
-      <p class="muted install__txt">{{ 'install.iosHint' | t }}</p>
-      <ol class="install__steps muted">
-        <li>{{ 'install.iosStep1' | t }}</li>
-        <li>{{ 'install.iosStep2' | t }}</li>
-      </ol>
-    } @else {
-      <p class="muted install__txt">{{ 'install.unavailable' | t }}</p>
-    }
-  `,
-  styles: [`
-    .install__txt { font-size: 0.85rem; margin: 0 0 var(--s-2); }
-    .install__ok { font-size: 0.9rem; color: var(--accent); display: inline-flex; align-items: center; gap: 6px; }
-    .install__steps { font-size: 0.82rem; margin: 0; padding-left: 1.1rem; line-height: 1.6; }
-  `],
+  templateUrl: './install-card.component.html',
+  styleUrl: './install-card.component.scss',
 })
 export class InstallCardComponent {
   readonly platform = inject(PlatformService);

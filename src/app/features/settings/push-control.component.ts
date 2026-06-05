@@ -16,28 +16,7 @@ import { environment } from '@env/environment';
   selector: 'bf-push-control',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, ToggleSwitchModule, ButtonModule, TPipe],
-  template: `
-    @if (push.available) {
-      <div class="set__toggle">
-        <span>{{ 'push.serverLabel' | t }}</span>
-        <p-toggleswitch [ngModel]="push.subscribed()" [disabled]="push.busy()"
-                        (ngModelChange)="toggle($event)" />
-      </div>
-      @if (push.subscribed()) {
-        <div class="set__toggle">
-          <span>{{ 'push.reminderLabel' | t }}</span>
-          <p-toggleswitch [ngModel]="push.reminderEnabled()" [disabled]="push.busy()"
-                          (ngModelChange)="push.setReminder($event)" />
-        </div>
-        @if (isDev) {
-          <p-button [label]="'push.test' | t" icon="pi pi-send" [text]="true" size="small"
-                    (onClick)="push.sendTest()" />
-        }
-      }
-    } @else if (showIosHint()) {
-      <p class="muted set__hint">{{ 'push.iosHint' | t }}</p>
-    }
-  `,
+  templateUrl: './push-control.component.html',
 })
 export class PushControlComponent {
   readonly push = inject(PushService);

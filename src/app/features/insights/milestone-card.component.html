@@ -1,0 +1,12 @@
+<div class="ms">
+  @for (m of milestones.milestones(); track m.id) {
+    <div class="ms__badge" [class.ms__badge--earned]="m.earned"
+         [attr.title]="(m.labelKey | t) + ' — ' + m.current + '/' + m.threshold">
+      <div class="ms__icon"><i class="pi {{ m.icon }}"></i></div>
+      <span class="ms__label">{{ m.labelKey | t }}</span>
+      @if (!m.earned) {
+        <div class="ms__track"><div class="ms__fill" [style.width.%]="m.progress * 100"></div></div>
+      }
+    </div>
+  }
+</div>

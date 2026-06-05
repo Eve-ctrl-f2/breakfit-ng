@@ -12,25 +12,8 @@ import { TPipe } from '@core/i18n/t.pipe';
   selector: 'bf-verify-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, ButtonModule, InputOtpModule, MessageModule, TPipe],
-  template: `
-    <section class="container auth">
-      <h1 class="auth__title mono">{{ 'auth.verify.title' | t }}</h1>
-      <p class="muted auth__sub">{{ 'auth.verify.sub' | t:{ email: email() } }}</p>
-
-      <p-inputotp [(ngModel)]="code" [length]="6" [integerOnly]="true" />
-
-      @if (error()) { <p-message severity="error">{{ error() }}</p-message> }
-
-      <p-button [label]="'auth.confirm' | t" icon="pi pi-check" [loading]="loading()"
-                [disabled]="code().length < 6" (onClick)="submit()" styleClass="auth__btn" />
-    </section>
-  `,
-  styles: [`
-    .auth { max-width: 380px; padding-top: var(--s-6); display: flex; flex-direction: column; gap: var(--s-3); align-items: center; }
-    .auth__title { font-size: 1.6rem; margin: 0; }
-    .auth__sub { margin: 0 0 var(--s-2); text-align: center; }
-    :host ::ng-deep .auth__btn .p-button { width: 100%; }
-  `],
+  templateUrl: './verify-page.component.html',
+  styleUrl: './verify-page.component.scss',
 })
 export class VerifyPageComponent {
   private auth = inject(AuthService);

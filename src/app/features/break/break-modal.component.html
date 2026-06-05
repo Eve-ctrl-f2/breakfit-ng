@@ -1,0 +1,122 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="onVisibleChange($event)"
+  [modal]="true"
+  [closable]="false"
+  [dismissableMask]="false"
+  [draggable]="false"
+  appendTo="body"
+  [style]="{ width: 'min(440px, 92vw)' }"
+  styleClass="break-dialog"
+>
+  <ng-template #header>
+    <span class="break__title">{{ headerKey() | t }}</span>
+  </ng-template>
+
+  @if (rec(); as r) {
+    @if (step() === 'exercise') {
+      <!-- recommendation -->
+      <div class="break__rec">
+        <span class="break__cat" [style.color]="catColor(r)">
+          <i class="pi {{ r.exercise.icon }}"></i> {{ catLabel(r) }}
+        </span>
+        <h2 class="break__name">{{ r.exercise.name }}</h2>
+        <p class="break__reason muted">{{ r.reason | t }}</p>
+      </div>
+
+      @if (r.exercise.instructions?.length || r.exercise.mediaUrl) {
+        <button type="button" class="break__how-toggle"
+                [attr.aria-expanded]="showHow()" (click)="showHow.set(!showHow())">
+          <i class="pi" [class.pi-chevron-down]="!showHow()" [class.pi-chevron-up]="showHow()" aria-hidden="true"></i>
+          {{ 'break.howto' | t }}
+        </button>
+        @if (showHow()) {
+          <div class="break__how">
+            @if (r.exercise.mediaUrl) {
+              <img class="break__how-media" [src]="r.exercise.mediaUrl"
+                   [alt]="r.exercise.name" loading="lazy" />
+            }
+            @if (r.exercise.instructions?.length) {
+              <ol class="break__how-steps">
+                @for (s of r.exercise.instructions; track s) { <li>{{ s }}</li> }
+              </ol>
+            }
+          </div>
+        }
+      }
+
+      <!-- amount stepper: buttons + real input on one row, caption BELOW -->
+      <div class="reps">
+        <div class="reps__row">
+          <p-button icon="pi pi-minus" [rounded]="true" [text]="true"
+                    (onClick)="adjust(-1)" [ariaLabel]="'break.aria.less' | t" />
+          <input
+            class="reps-counter"
+            type="text"
+            inputmode="numeric"
+            [ngModel]="amount()"
+            (ngModelChange)="onAmountInput($event)"
+            [attr.aria-label]="'break.aria.amount' | t"
+          />
+          <p-button icon="pi pi-plus" [rounded]="true" [text]="true"
+                    (onClick)="adjust(1)" [ariaLabel]="'break.aria.more' | t" />
+        </div>
+        <p class="reps__caption muted">
+          {{ (r.exercise.unit === 'reps' ? 'break.unit.reps' : 'break.unit.seconds') | t }}
+        </p>
+      </div>
+
+      <p-button [label]="'break.other' | t" icon="pi pi-refresh" [text]="true"
+                size="small" styleClass="break__shuffle" (onClick)="reshuffle()" />
+    } @else if (step() === 'feedback') {
+      <!-- feedback -->
+      <p class="break__fb-q muted">{{ 'break.fb.question' | t }}</p>
+      <div class="break__fb">
+        <p-button [label]="'break.fb.tooEasy' | t" [outlined]="true" (onClick)="finish(-1)" />
+        <p-button [label]="'break.fb.ok' | t" (onClick)="finish(0)" />
+        <p-button [label]="'break.fb.tooHard' | t" [outlined]="true" (onClick)="finish(1)" />
+      </div>
+    } @else if (step() === 'meeting') {
+      <p class="break__fb-q muted">{{ 'meeting.choose' | t }}</p>
+      <div class="break__meeting">
+        @for (m of meetingPresets; track m) {
+          <p-button [label]="m + ' min'" [outlined]="true" (onClick)="startMeeting(m)" />
+        }
+      </div>
+      <p-button [label]="'common.cancel' | t" severity="secondary" [text]="true"
+                size="small" styleClass="break__shuffle" (onClick)="step.set('exercise')" />
+    } @else if (step() === 'snooze') {
+      <p class="break__fb-q muted">{{ 'snooze.choose' | t }}</p>
+      <div class="break__meeting">
+        @for (m of snoozePresets; track m) {
+          <p-button [label]="m + ' min'" [outlined]="true" (onClick)="startSnooze(m)" />
+        }
+      </div>
+      <p-button [label]="'common.cancel' | t" severity="secondary" [text]="true"
+                size="small" styleClass="break__shuffle" (onClick)="step.set('exercise')" />
+    }
+  } @else {
+    <p class="muted">{{ 'break.emptyPool' | t }}</p>
+    <p-button [label]="'break.close' | t" (onClick)="skip()" />
+  }
+
+  @if (step() === 'exercise' && rec()) {
+    <ng-template #footer>
+      <div class="break__actions">
+        <!-- row 1: postpone actions, equal weight -->
+        <div class="break__row">
+          <p-button [label]="'break.meeting' | t" icon="pi pi-calendar" severity="secondary"
+                    [outlined]="true" styleClass="break__flex" (onClick)="meeting()" />
+          <p-button [label]="'break.snooze' | t" icon="pi pi-clock" severity="secondary"
+                    [outlined]="true" styleClass="break__flex" (onClick)="snooze()" />
+        </div>
+        <!-- row 2: skip = discard intent, ghost-danger -->
+        <p-button [label]="'break.skip' | t" [text]="true" severity="danger"
+                  styleClass="break__skip" (onClick)="skip()" />
+        <!-- primary: done -->
+        <p-button [label]="'break.done' | t" icon="pi pi-check" size="large"
+                  styleClass="break__done" (onClick)="done()" />
+      </div>
+    </ng-template>
+  }
+</p-dialog>

@@ -1,0 +1,91 @@
+<section class="container">
+  <p class="section-title">{{ 'insights.title' | t }}</p>
+
+  <!-- headline stats -->
+  <div class="stats">
+    <div class="stat">
+      <span class="stat__num mono">{{ s().completedBreaks }}</span>
+      <span class="stat__lbl muted">{{ 'insights.stat.done' | t }}</span>
+    </div>
+    <div class="stat">
+      <span class="stat__num mono" style="color: var(--streak)">{{ s().currentStreakDays }}</span>
+      <span class="stat__lbl muted">{{ 'insights.stat.streak' | t }}</span>
+    </div>
+    <div class="stat">
+      <span class="stat__num mono">{{ ratePct() }}%</span>
+      <span class="stat__lbl muted">{{ 'insights.stat.rate' | t }}</span>
+    </div>
+  </div>
+
+  <!-- weekly recap -->
+  <p-card styleClass="ins-card">
+    <p class="section-title">{{ 'recap.title' | t }}</p>
+    <bf-recap-card />
+  </p-card>
+
+  <!-- weekly goal -->
+  <p-card styleClass="ins-card">
+    <p class="section-title">{{ 'goal.title' | t }}</p>
+    <bf-goal-card />
+  </p-card>
+
+  <!-- milestones -->
+  <p-card styleClass="ins-card">
+    <p class="section-title">{{ 'milestones.title' | t }}</p>
+    <bf-milestone-card />
+  </p-card>
+
+  <!-- category distribution -->
+  <p-card styleClass="ins-card">
+    <p class="section-title">{{ 'insights.muscle' | t }}</p>
+    @if (meter().length) {
+      <p-metergroup [value]="meter()" />
+    } @else {
+      <p class="muted">{{ 'insights.noData' | t }}</p>
+    }
+  </p-card>
+
+  <!-- body heatmap (7 days) -->
+  <p-card styleClass="ins-card">
+    <p class="section-title">{{ 'heatmap.title' | t }}</p>
+    <bf-body-heatmap />
+  </p-card>
+
+  <!-- weekday activity -->
+  <p-card styleClass="ins-card">
+    <p class="section-title">{{ 'insights.week' | t }}</p>
+    <div class="bars">
+      @for (d of weekdayBars(); track d.label) {
+        <div class="bar">
+          <div class="bar__track">
+            <div class="bar__fill" [style.height.%]="d.pct"></div>
+          </div>
+          <span class="bar__lbl muted">{{ d.label }}</span>
+        </div>
+      }
+    </div>
+  </p-card>
+
+  <!-- recent -->
+  <p-card styleClass="ins-card">
+    <div class="ins-card__head">
+      <p class="section-title" style="margin:0">{{ 'insights.history' | t }}</p>
+      @if (history.entries().length) {
+        <p-button [label]="'insights.delete' | t" [text]="true" size="small" severity="danger"
+                  (onClick)="history.clear()" />
+      }
+    </div>
+    @for (e of recent(); track e.id) {
+      <div class="hist">
+        <span class="hist__dot" [class.hist__dot--skip]="e.outcome !== 'completed'"></span>
+        <span class="hist__name">{{ e.exerciseName ?? ('insights.skipped' | t) }}</span>
+        @if (e.outcome === 'completed') {
+          <span class="hist__amt muted mono">{{ e.amountDone }}</span>
+        }
+        <span class="hist__time muted">{{ time(e.startedAt) }}</span>
+      </div>
+    } @empty {
+      <p class="muted">{{ 'insights.empty' | t }}</p>
+    }
+  </p-card>
+</section>

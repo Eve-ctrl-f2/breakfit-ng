@@ -1,7 +1,6 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  HostListener,
   effect,
   inject,
   signal,
@@ -20,6 +19,7 @@ import { TPipe } from './core/i18n/t.pipe';
   selector: 'bf-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterOutlet, RouterLink, RouterLinkActive, BreakModalComponent, OnboardingComponent, TPipe],
+  host: { '(document:visibilitychange)': 'onVisibility()' },
   template: `
     <div class="app-shell">
       <a class="skip-link" href="#main">{{ 'a11y.skip' | t }}</a>
@@ -83,7 +83,6 @@ export class App {
     });
   }
 
-  @HostListener('document:visibilitychange')
   onVisibility(): void {
     if (document.visibilityState === 'visible') {
       this.timer.resync();

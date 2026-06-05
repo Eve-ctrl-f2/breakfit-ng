@@ -13,38 +13,8 @@ import { environment } from '@env/environment';
   selector: 'bf-login-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, InputTextModule, ButtonModule, MessageModule, TPipe],
-  template: `
-    <section class="container auth">
-      <h1 class="auth__title mono">BreakFit</h1>
-      <p class="muted auth__sub">{{ 'auth.login.sub' | t }}</p>
-
-      <label class="auth__field">
-        <span class="muted">{{ 'auth.email' | t }}</span>
-        <input pInputText type="email" [(ngModel)]="email" placeholder="du@example.com"
-               autocomplete="email" />
-      </label>
-
-      @if (error()) { <p-message severity="error">{{ error() }}</p-message> }
-
-      <p-button [label]="'auth.requestCode' | t" icon="pi pi-envelope" [loading]="loading()"
-                [disabled]="!email()" (onClick)="submit()" styleClass="auth__btn" />
-
-      @if (devHint) {
-        <p class="muted auth__hint">{{ 'auth.devHint' | t }}</p>
-      } @else {
-        <p class="muted auth__hint">{{ 'auth.spamHint' | t }}</p>
-      }
-    </section>
-  `,
-  styles: [`
-    .auth { max-width: 380px; padding-top: var(--s-6); display: flex; flex-direction: column; gap: var(--s-3); }
-    .auth__title { font-size: 2rem; margin: 0; }
-    .auth__sub { margin: 0 0 var(--s-2); }
-    .auth__field { display: flex; flex-direction: column; gap: 6px; }
-    .auth__field input { width: 100%; }
-    :host ::ng-deep .auth__btn .p-button { width: 100%; }
-    .auth__hint { font-size: 0.8rem; text-align: center; }
-  `],
+  templateUrl: './login-page.component.html',
+  styleUrl: './login-page.component.scss',
 })
 export class LoginPageComponent {
   private auth = inject(AuthService);

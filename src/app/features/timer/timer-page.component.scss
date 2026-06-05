@@ -1,0 +1,33 @@
+.timer { display: flex; flex-direction: column; align-items: center; gap: var(--s-4); padding-top: var(--s-6); }
+.timer__head { text-align: center; }
+.timer__sub { margin: var(--s-1) 0 0; font-size: 0.85rem; }
+.timer__dial { position: relative; display: grid; place-items: center; }
+.timer__readout {
+  position: absolute; font-size: 3rem; font-weight: 700; letter-spacing: 0.02em; color: var(--text-1);
+}
+.timer__cycles { display: flex; gap: var(--s-2); }
+.pip { width: 10px; height: 10px; border-radius: 999px; background: var(--border-2); }
+.pip--done { background: var(--accent); }
+.timer__actions { display: flex; gap: var(--s-3); align-items: center; flex-wrap: wrap; justify-content: center; }
+.timer__hint { font-size: 0.85rem; }
+.meeting-strip { display: flex; align-items: center; justify-content: space-between;
+                 gap: var(--s-2); width: 100%; background: var(--accent-08);
+                 border: 1px solid var(--accent-25); border-radius: 12px;
+                 padding: 10px 14px; }
+.meeting-strip__txt { color: var(--accent); font-size: 0.9rem; display: inline-flex;
+                      align-items: center; gap: 8px; }
+.meeting-strip__end { background: none; border: 1px solid var(--accent-25); color: var(--accent);
+                      border-radius: 8px; padding: 4px 10px; cursor: pointer; font-size: 0.82rem; }
+.meeting-strip__end:hover { background: var(--accent-15); }
+.timer__meeting { display: flex; flex-direction: column; align-items: center; gap: var(--s-3);
+                  width: 100%; max-width: 320px; padding: var(--s-3);
+                  background: var(--surface-1); border: 1px solid var(--border-2);
+                  border-radius: var(--radius); }
+.timer__meeting-q { font-size: 0.85rem; color: var(--text-1); text-align: center; }
+.timer__meeting-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-2); width: 100%; }
+:host ::ng-deep .timer__meeting-grid .p-button { width: 100%; }
+:host ::ng-deep .timer__meeting-cancel { align-self: center; }
+:host ::ng-deep .timer__meeting-trigger { margin-top: var(--s-1); }
+:host ::ng-deep .timer__pause .p-button-label,
+:host ::ng-deep .timer__pause .p-button-icon { color: var(--text-1); }
+:host ::ng-deep .timer__pause:hover { background: var(--surface-3); border-color: var(--border-3); }

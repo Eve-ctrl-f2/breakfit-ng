@@ -1,0 +1,75 @@
+<div class="ob" role="dialog" aria-modal="true" aria-labelledby="ob-title">
+  <div class="ob__card">
+    <!-- progress -->
+    <div class="ob__dots" aria-hidden="true">
+      @for (i of stepIndices; track i) {
+        <span class="ob__dot" [class.ob__dot--active]="i === step()"></span>
+      }
+    </div>
+
+    @switch (step()) {
+      @case (0) {
+        <div class="ob__body">
+          <div class="ob__icon"><i class="pi pi-bolt"></i></div>
+          <h2 class="ob__title" id="ob-title" tabindex="-1">{{ 'onboard.welcome.title' | t }}</h2>
+          <p class="ob__text muted">{{ 'onboard.welcome.text' | t }}</p>
+        </div>
+      }
+      @case (1) {
+        <div class="ob__body">
+          <h2 class="ob__title" id="ob-title" tabindex="-1">{{ 'onboard.rhythm.title' | t }}</h2>
+          <p class="ob__text muted">{{ 'onboard.rhythm.text' | t }}</p>
+          <div class="ob__presets">
+            @for (p of presets; track p.id) {
+              <button class="ob__preset" [class.ob__preset--sel]="chosen() === p.id"
+                      (click)="choosePreset(p)">
+                <span class="ob__preset-name">{{ p.name }}</span>
+                <span class="ob__preset-meta muted mono">{{ p.focusMinutes }}/{{ p.breakMinutes }}</span>
+              </button>
+            }
+          </div>
+        </div>
+      }
+      @case (2) {
+        <div class="ob__body">
+          <div class="ob__icon"><i class="pi pi-bell"></i></div>
+          <h2 class="ob__title" id="ob-title" tabindex="-1">{{ 'onboard.notif.title' | t }}</h2>
+          <p class="ob__text muted">{{ 'onboard.notif.text' | t }}</p>
+          @if (platform.isIOS) {
+            <p class="ob__hint">{{ 'onboard.notif.ios' | t }}</p>
+          } @else if (notify.permission() === 'granted') {
+            <p class="ob__ok"><i class="pi pi-check-circle"></i> {{ 'onboard.notif.granted' | t }}</p>
+          } @else {
+            <p-button [label]="'onboard.notif.enable' | t" icon="pi pi-bell"
+                      [outlined]="true" (onClick)="enableNotifications()" />
+          }
+        </div>
+      }
+      @case (3) {
+        <div class="ob__body">
+          <div class="ob__icon ob__icon--done"><i class="pi pi-check"></i></div>
+          <h2 class="ob__title" id="ob-title" tabindex="-1">{{ 'onboard.done.title' | t }}</h2>
+          <p class="ob__text muted">{{ 'onboard.done.text' | t }}</p>
+        </div>
+      }
+    }
+
+    <!-- nav -->
+    <div class="ob__nav">
+      @if (step() > 0) {
+        <p-button [label]="'onboard.back' | t" [text]="true" severity="secondary"
+                  (onClick)="back()" />
+      } @else {
+        <p-button [label]="'onboard.skip' | t" [text]="true" severity="secondary"
+                  (onClick)="finish()" />
+      }
+      @if (step() < lastStep) {
+        <p-button [label]="'onboard.next' | t" icon="pi pi-arrow-right" iconPos="right"
+                  (onClick)="next()" />
+      } @else {
+        <p-button [label]="'onboard.start' | t" icon="pi pi-play"
+                  (onClick)="finish()" />
+      }
+    </div>
+  </div>
+</div>

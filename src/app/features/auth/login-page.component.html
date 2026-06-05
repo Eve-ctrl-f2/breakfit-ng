@@ -1,0 +1,21 @@
+<section class="container auth">
+  <h1 class="auth__title mono">BreakFit</h1>
+  <p class="muted auth__sub">{{ 'auth.login.sub' | t }}</p>
+
+  <label class="auth__field">
+    <span class="muted">{{ 'auth.email' | t }}</span>
+    <input pInputText type="email" [(ngModel)]="email" placeholder="du@example.com"
+           autocomplete="email" />
+  </label>
+
+  @if (error()) { <p-message severity="error">{{ error() }}</p-message> }
+
+  <p-button [label]="'auth.requestCode' | t" icon="pi pi-envelope" [loading]="loading()"
+            [disabled]="!email()" (onClick)="submit()" styleClass="auth__btn" />
+
+  @if (devHint) {
+    <p class="muted auth__hint">{{ 'auth.devHint' | t }}</p>
+  } @else {
+    <p class="muted auth__hint">{{ 'auth.spamHint' | t }}</p>
+  }
+</section>

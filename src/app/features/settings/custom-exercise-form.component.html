@@ -1,0 +1,73 @@
+@if (!open()) {
+  <p-button
+    [label]="'exercises.addBtn' | t"
+    icon="pi pi-plus"
+    [outlined]="true"
+    size="small"
+    (onClick)="open.set(true)"
+  />
+} @else {
+  <div class="exf">
+    <p class="set__h">{{ (editId() ? 'exercises.editTitle' : 'exercises.addTitle') | t }}</p>
+
+    <!-- Name -->
+    <label class="exf__row">
+      <span class="exf__lbl">{{ 'exercises.name' | t }}</span>
+      <input pInputText [(ngModel)]="form().name" (ngModelChange)="patch({ name: $event })"
+             [placeholder]="'exercises.namePlaceholder' | t" maxlength="40" />
+    </label>
+
+    <!-- Category -->
+    <div class="exf__row">
+      <span class="exf__lbl">{{ 'exercises.category' | t }}</span>
+      <p-selectbutton [options]="catOptions" optionLabel="label" optionValue="value"
+                      [allowEmpty]="false"
+                      [ngModel]="form().category"
+                      (ngModelChange)="patch({ category: $event })" />
+    </div>
+
+    <!-- Difficulty -->
+    <div class="exf__row">
+      <span class="exf__lbl">{{ 'exercises.difficulty' | t }}</span>
+      <p-selectbutton [options]="diffOptions" optionLabel="label" optionValue="value"
+                      [allowEmpty]="false"
+                      [ngModel]="form().difficulty"
+                      (ngModelChange)="patch({ difficulty: $event })" />
+    </div>
+
+    <!-- Unit -->
+    <div class="exf__row">
+      <span class="exf__lbl">{{ 'exercises.unit' | t }}</span>
+      <p-selectbutton [options]="unitOptions" optionLabel="label" optionValue="value"
+                      [allowEmpty]="false"
+                      [ngModel]="form().unit"
+                      (ngModelChange)="patch({ unit: $event })" />
+    </div>
+
+    <!-- Default amount -->
+    <div class="exf__row">
+      <span class="exf__lbl">{{ 'exercises.amount' | t }}</span>
+      <p-inputnumber [ngModel]="form().defaultAmount"
+                     (ngModelChange)="patch({ defaultAmount: $event ?? 1 })"
+                     [min]="1" [max]="999" [showButtons]="true" inputStyleClass="exf__num" />
+    </div>
+
+    <!-- Instructions (optional) -->
+    <label class="exf__col">
+      <span class="exf__lbl">{{ 'exercises.instructions' | t }}</span>
+      <textarea rows="3" class="exf__area"
+                [ngModel]="form().instructions"
+                (ngModelChange)="patch({ instructions: $event })"
+                [placeholder]="'exercises.instructionsHint' | t"></textarea>
+    </label>
+
+    @if (error()) { <p class="exf__err">{{ error() }}</p> }
+
+    <div class="exf__actions">
+      <p-button [label]="'common.cancel' | t" severity="secondary" [outlined]="true"
+                size="small" (onClick)="cancel()" />
+      <p-button [label]="'common.save' | t" icon="pi pi-check"
+                size="small" (onClick)="submit()" />
+    </div>
+  </div>
+}

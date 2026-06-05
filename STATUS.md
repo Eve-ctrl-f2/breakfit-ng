@@ -36,10 +36,12 @@ backend after the full P1–P3 backlog pass.
 
 ## Backend API surface
 
-`/health` · `/metrics` · `/me` · `/me/export` · `/me/delete` ·
-`/auth/request` · `/auth/verify` · `/auth/refresh` · `/auth/logout` ·
-`/auth/logout-all` · `/sync/history` (GET/POST) · `/sync/settings` (GET/PUT) ·
-`/push/subscribe` · `/push/unsubscribe` · `/push/test` · `/telemetry/error`
+All app endpoints are served under **`/v1`** (`/health` and `/metrics` stay at root):
+
+`/health` · `/metrics` · `/v1/me` · `/v1/me/export` · `/v1/me/delete` ·
+`/v1/auth/*` ·
+`/v1/sync/history` (GET/POST) · `/v1/sync/settings` (GET/PUT) ·
+`/v1/push/*` · `/v1/telemetry/error`
 
 ## Delivered (by priority)
 
@@ -71,8 +73,7 @@ These are by design — a web app can't do them alone:
 ## Open / optional backlog
 
 - Commit `package-lock.json` (root + `/server`); then flip CI to `npm ci`.
-- Versioned DB migrations (currently `schema.sql` via initdb).
-- API versioning prefix (`/v1`) before external clients.
+  *(Blocked in the authoring sandbox — `npm install` can't run here; generate the lockfiles in a real environment.)*
 - Digest push (weekly recap as a notification).
 - Visual-regression tests; broader unit coverage of the recommendation engine.
 - Capacitor/TWA wrapper for app-store distribution.

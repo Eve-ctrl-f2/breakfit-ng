@@ -1,7 +1,8 @@
 # BreakFit backend stack: Postgres + Redis + API.
 # Usage:
-#   docker compose up -d
-#   docker compose exec api npm run migrate   # applies db/schema.sql
+#   docker compose up -d --build
+# The api container applies pending migrations (server/migrations/*.sql) on
+# start, so no manual schema step is needed.
 #
 # Then in the frontend set cloudEnabled: true + apiBase, and `npm run build`.
 services:
@@ -14,8 +15,6 @@ services:
     ports: ["5432:5432"]
     volumes:
       - "bf_pgdata:/var/lib/postgresql/data"
-      # schema is applied automatically the first time the data dir is empty
-      - "./db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U breakfit"]
       interval: 5s

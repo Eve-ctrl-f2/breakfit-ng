@@ -49,8 +49,8 @@ export class VerifyPageComponent {
     try {
       await this.auth.verify(this.email(), this.code());
       await this.router.navigate(['/timer']);
-    } catch (e: any) {
-      this.error.set(e?.message ?? this.i18n.t('auth.error.code'));
+    } catch (e: unknown) {
+      this.error.set((e instanceof Error ? e.message : undefined) ?? this.i18n.t('auth.error.code'));
     } finally {
       this.loading.set(false);
     }

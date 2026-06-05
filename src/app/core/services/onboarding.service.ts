@@ -1,4 +1,4 @@
-import { Injectable, computed, effect, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { IdbService } from './storage/idb.service';
 import { HistoryService } from './history.service';
 

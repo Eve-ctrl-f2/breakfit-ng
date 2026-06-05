@@ -14,5 +14,7 @@ ENV NODE_ENV=production
 COPY package.json ./
 RUN npm install --omit=dev
 COPY --from=build /app/dist ./dist
+COPY migrations ./migrations
 EXPOSE 8080
-CMD ["node", "dist/server.js"]
+# apply pending migrations, then start (fail-fast if migrate errors)
+CMD ["sh", "-c", "node dist/migrate.js && node dist/server.js"]

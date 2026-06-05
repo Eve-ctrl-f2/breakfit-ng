@@ -25,7 +25,10 @@
             "polyfills": [],
             "tsConfig": "tsconfig.app.json",
             "assets": [
-              { "glob": "**/*", "input": "public" }
+              {
+                "glob": "**/*",
+                "input": "public"
+              }
             ],
             "styles": [
               "node_modules/primeicons/primeicons.css",
@@ -36,8 +39,16 @@
           "configurations": {
             "production": {
               "budgets": [
-                { "type": "initial", "maximumWarning": "600kB", "maximumError": "1.2MB" },
-                { "type": "anyComponentStyle", "maximumWarning": "8kB", "maximumError": "16kB" }
+                {
+                  "type": "initial",
+                  "maximumWarning": "600kB",
+                  "maximumError": "1.2MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "8kB",
+                  "maximumError": "16kB"
+                }
               ],
               "outputHashing": "all",
               "fileReplacements": [
@@ -58,8 +69,12 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "configurations": {
-            "production": { "buildTarget": "breakfit:build:production" },
-            "development": { "buildTarget": "breakfit:build:development" }
+            "production": {
+              "buildTarget": "breakfit:build:production"
+            },
+            "development": {
+              "buildTarget": "breakfit:build:development"
+            }
           },
           "defaultConfiguration": "development"
         },
@@ -69,8 +84,22 @@
             "tsConfig": "tsconfig.spec.json",
             "runner": "vitest"
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
+          }
         }
       }
     }
+  },
+  "cli": {
+    "schematicCollections": [
+      "angular-eslint"
+    ]
   }
 }

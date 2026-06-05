@@ -23,25 +23,26 @@ docker compose up -d --build
 curl localhost:8080/health                   # { "ok": true }
 ```
 
-This brings up Postgres, Redis, and the Fastify API on `:8080`. The database
-schema (`db/schema.sql`) is applied **automatically** on first start — it's
-mounted into Postgres's `docker-entrypoint-initdb.d`, which runs once when the
-data volume is empty. To re-apply after a schema change, either recreate the
-volume (`docker compose down -v && docker compose up -d`) or run it from a host
-that has `psql`:
+This brings up Postgres, Redis, and the Fastify API on `:8080`. Database
+migrations (`server/migrations/*.sql`) are applied **automatically** by the API
+container on start, via a small dependency-free runner (`dist/migrate.js`) that
+tracks applied versions in a `schema_migrations` table. New schema changes are
+just new numbered files (e.g. `0002_add_x.sql`) — they apply on the next deploy.
 
 ```bash
-# uses psql inside the db container (no local psql needed):
-docker compose exec -T db psql -U breakfit -d breakfit -f /docker-entrypoint-initdb.d/01-schema.sql
-# or, from the server/ folder:
-npm run migrate:docker
+# apply migrations manually (e.g. against a managed DB) from server/:
+DATABASE_URL=postgres://… npm run migrate
 ```
 
 For a real deployment, run the same `server/` image on your host (Fly.io,
 Railway, a VM, etc.), point `DATABASE_URL` / `REDIS_URL` at managed instances,
-apply the schema with your migration tooling, and set `CORS_ORIGIN` to your
-frontend origin. Redis is optional — login codes also persist in Postgres
+and set `CORS_ORIGIN` to your frontend origin. The image migrates on boot; in
+multi-replica setups (k8s) run `node dist/migrate.js` as a Job/initContainer
+instead of per-replica. Redis is optional — login codes also persist in Postgres
 (`login_codes`), so the API runs without `REDIS_URL`.
+
+> The app API is served under **`/v1`** (e.g. `POST /v1/auth/request`); the
+> frontend prepends this automatically. `/health` and `/metrics` stay unprefixed.
 
 > Passwordless login emails the 6-digit code in production. In dev
 > (`NODE_ENV != production`) the code is logged to the API console so you can

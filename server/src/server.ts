@@ -89,11 +89,16 @@ app.get('/health', async (_req, reply) => {
 });
 
 const mailer = createMailer(app.log);
-await registerAuthRoutes(app, { sql, redis, mailer });
-await registerSyncRoutes(app, { sql });
-await registerMeRoutes(app, { sql });
-await registerTelemetryRoutes(app);
-await registerPushRoutes(app, { sql });
+
+// Versioned app API. /health and /metrics stay unprefixed (ops endpoints).
+await app.register(async (v1) => {
+  await registerAuthRoutes(v1, { sql, redis, mailer });
+  await registerSyncRoutes(v1, { sql });
+  await registerMeRoutes(v1, { sql });
+  await registerTelemetryRoutes(v1);
+  await registerPushRoutes(v1, { sql });
+}, { prefix: '/v1' });
+
 registerMetrics(app);
 
 if (initWebPush()) {

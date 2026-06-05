@@ -70,39 +70,39 @@ const EMPTY_FORM: Form = {
         </label>
 
         <!-- Category -->
-        <label class="exf__row">
+        <div class="exf__row">
           <span class="exf__lbl">{{ 'exercises.category' | t }}</span>
           <p-selectbutton [options]="catOptions" optionLabel="label" optionValue="value"
                           [allowEmpty]="false"
                           [ngModel]="form().category"
                           (ngModelChange)="patch({ category: $event })" />
-        </label>
+        </div>
 
         <!-- Difficulty -->
-        <label class="exf__row">
+        <div class="exf__row">
           <span class="exf__lbl">{{ 'exercises.difficulty' | t }}</span>
           <p-selectbutton [options]="diffOptions" optionLabel="label" optionValue="value"
                           [allowEmpty]="false"
                           [ngModel]="form().difficulty"
                           (ngModelChange)="patch({ difficulty: $event })" />
-        </label>
+        </div>
 
         <!-- Unit -->
-        <label class="exf__row">
+        <div class="exf__row">
           <span class="exf__lbl">{{ 'exercises.unit' | t }}</span>
           <p-selectbutton [options]="unitOptions" optionLabel="label" optionValue="value"
                           [allowEmpty]="false"
                           [ngModel]="form().unit"
                           (ngModelChange)="patch({ unit: $event })" />
-        </label>
+        </div>
 
         <!-- Default amount -->
-        <label class="exf__row">
+        <div class="exf__row">
           <span class="exf__lbl">{{ 'exercises.amount' | t }}</span>
           <p-inputnumber [ngModel]="form().defaultAmount"
                          (ngModelChange)="patch({ defaultAmount: $event ?? 1 })"
                          [min]="1" [max]="999" [showButtons]="true" inputStyleClass="exf__num" />
-        </label>
+        </div>
 
         <!-- Instructions (optional) -->
         <label class="exf__col">

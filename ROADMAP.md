@@ -26,6 +26,7 @@ flag for cloud · Fastify+Postgres+Redis backend (schema, auth, sync, deletion)
 | ✅ | **Streak freeze / rest days** | Done — per-weekday rest days in settings; streak math freezes (neither counts nor breaks) on empty rest days. |
 | ✅ | **Exercise instructions / media** | Done — per-exercise how-to steps (all 16 base + optional on custom), shown via a 'How to' toggle in the break modal; optional `mediaUrl` renders a demo image/clip when provided. |
 | ✅ | **Weekly recap** | Done — Insights recap card: this-week count, signed delta vs last week, 7-day mini bars. (Digest push still optional.) |
+| ✅ | **DB migrations + API `/v1`** | Versioned migration runner (`server/migrations/*.sql`, auto-applied on boot) replaces initdb; app API served under `/v1`. |
 | ✅ | **More locales** | Done — Spanish + Italian added; catalog now DE/EN/FR/ES/IT, all 195 keys symmetric. |
 | ✅ | **Apple Health / Google Fit** | Done — native-bridge seam (`window.bfHealth`) logs completed breaks when wrapped natively; TCX workout export works in any browser. See HEALTH.md. |
 | ✅ | **Themes** | Done — System/Light/Dark theme (system follows OS live) + 5-colour accent picker, applied on <html>, persisted in settings. |

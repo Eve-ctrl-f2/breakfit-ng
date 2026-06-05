@@ -46,7 +46,7 @@ export class ErrorReportingService {
             ua: navigator.userAgent,
             version: environment.appVersion,
           })
-          .subscribe({ error: () => {} }); // swallow: reporting must never cascade
+          .subscribe({ error: () => { /* swallow */ } }); // swallow: reporting must never cascade
       } catch {
         /* never let the reporter throw */
       }

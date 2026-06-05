@@ -6,8 +6,7 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
-    "migrate": "psql \"$DATABASE_URL\" -f ../db/schema.sql",
-    "migrate:docker": "docker compose -f ../docker-compose.yml exec -T db psql -U breakfit -d breakfit -f /docker-entrypoint-initdb.d/01-schema.sql",
+    "migrate": "node dist/migrate.js",
     "gen-vapid": "web-push generate-vapid-keys"
   },
   "dependencies": {

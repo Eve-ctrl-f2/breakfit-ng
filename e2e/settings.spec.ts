@@ -1,14 +1,15 @@
 import { test, expect } from '@playwright/test';
+import { gotoApp } from './helpers';
 
 test.describe('Settings', () => {
   test('switches language live', async ({ page }) => {
-    await page.goto('/settings');
+    await gotoApp(page, '/settings');
     await page.getByRole('button', { name: 'English' }).click();
     await expect(page.locator('.section-title')).toHaveText('Settings');
   });
 
   test('adds, edits and removes a custom exercise', async ({ page }) => {
-    await page.goto('/settings');
+    await gotoApp(page, '/settings');
     const form = page.locator('bf-custom-exercise-form');
 
     // add

@@ -62,8 +62,8 @@ export class LoginPageComponent {
     try {
       await this.auth.requestCode(this.email());
       await this.router.navigate(['/auth/verify'], { queryParams: { email: this.email() } });
-    } catch (e: any) {
-      this.error.set(e?.message ?? this.i18n.t('auth.error.login'));
+    } catch (e: unknown) {
+      this.error.set((e instanceof Error ? e.message : undefined) ?? this.i18n.t('auth.error.login'));
     } finally {
       this.loading.set(false);
     }

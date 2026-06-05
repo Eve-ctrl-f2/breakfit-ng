@@ -76,13 +76,6 @@ describe('buildSummary', () => {
 });
 
 describe('weeklyRecap', () => {
-  const day = (back: number) => {
-    const d = new Date();
-    d.setDate(d.getDate() - back);
-    d.setHours(12, 0, 0, 0);
-    return d.toISOString();
-  };
-
   it('is all-zero with no entries', () => {
     const r = weeklyRecap([]);
     expect(r.thisWeek).toBe(0);

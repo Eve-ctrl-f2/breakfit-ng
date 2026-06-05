@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, ElementRef, HostListener, afterNextRender, computed, effect, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, afterNextRender, effect, inject, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { PresetService, type FocusPreset } from '@core/services/preset.service';
 import { NotificationService } from '@core/services/notification.service';

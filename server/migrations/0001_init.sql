@@ -3,8 +3,6 @@
 -- Passwordless auth (magic code) + per-user settings + history sync.
 -- Run: psql "$DATABASE_URL" -f db/schema.sql
 -- ============================================================================
--- NOTE: canonical schema now lives in server/migrations/*.sql (applied by
--- the migration runner on API start). This file is kept for reference/psql use.
 
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";  -- gen_random_uuid()
 CREATE EXTENSION IF NOT EXISTS "citext";    -- case-insensitive email

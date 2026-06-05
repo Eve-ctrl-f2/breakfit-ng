@@ -41,21 +41,21 @@ import type { Locale } from '@core/i18n/translations';
       <!-- Timer -->
       <p-card styleClass="set-card">
         <p class="set__h">{{ 'settings.timer' | t }}</p>
-        <label class="set__row">
+        <div class="set__row">
           <span>{{ 'settings.focus' | t }} <b class="mono">{{ st().focusMinutes }} {{ 'settings.min' | t }}</b></span>
           <p-slider [ngModel]="st().focusMinutes" (ngModelChange)="patch({ focusMinutes: $event })"
                     [min]="5" [max]="60" [step]="5" />
-        </label>
-        <label class="set__row">
+        </div>
+        <div class="set__row">
           <span>{{ 'settings.break' | t }} <b class="mono">{{ st().breakMinutes }} {{ 'settings.min' | t }}</b></span>
           <p-slider [ngModel]="st().breakMinutes" (ngModelChange)="patch({ breakMinutes: $event })"
                     [min]="1" [max]="15" [step]="1" />
-        </label>
-        <label class="set__row">
+        </div>
+        <div class="set__row">
           <span>{{ 'settings.longBreakEvery' | t }} <b class="mono">{{ st().longBreakEvery }}</b></span>
           <p-slider [ngModel]="st().longBreakEvery" (ngModelChange)="patch({ longBreakEvery: $event })"
                     [min]="2" [max]="8" [step]="1" />
-        </label>
+        </div>
         <div class="set__toggle">
           <span>{{ 'settings.autoStart' | t }}</span>
           <p-toggleswitch [ngModel]="st().autoStartNextFocus"

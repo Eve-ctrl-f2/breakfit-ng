@@ -36,7 +36,7 @@
     "@angular/build": "^21.2.0",
     "@angular/cli": "^21.2.0",
     "@angular/compiler-cli": "^21.2.0",
-    "@csstools/css-tokenizer": "^3.0.1",
+    "@csstools/css-tokenizer": "^4.0.0",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.50.0",
     "@types/node": "^22.10.0",

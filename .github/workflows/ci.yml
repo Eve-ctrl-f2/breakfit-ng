@@ -5,6 +5,12 @@ on:
     branches: [main]
   pull_request:
 
+# Node is pinned to the version the project is known to build/test on (Node 24
+# is currently incompatible with the Vitest version here). Keep in sync with
+# .nvmrc and the "engines" field.
+env:
+  NODE_VERSION: '22.22.3'
+
 jobs:
   security:
     name: Dependency audit
@@ -13,18 +19,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-      # Hard gate on CRITICAL (rare, always actionable); HIGH-and-below are
-      # reported for visibility but don't block — Dependabot opens fix PRs.
-      - name: Install (frontend)
-        run: npm install --package-lock-only
+          node-version: ${{ env.NODE_VERSION }}
+      # Audits read the committed package-lock.json — no install needed.
+      # Hard gate on CRITICAL; HIGH-and-below reported but non-blocking.
       - name: "Audit frontend (gate: critical)"
         run: npm audit --audit-level=critical
       - name: "Audit frontend (report: high)"
         run: npm audit --audit-level=high || true
-      - name: Install (backend)
-        run: npm install --package-lock-only
-        working-directory: server
       - name: "Audit backend (gate: high)"
         run: npm audit --audit-level=high
         working-directory: server
@@ -34,17 +35,20 @@ jobs:
 
   frontend:
     runs-on: ubuntu-latest
+    env:
+      CI: 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-      - run: npm install
-      - run: npm run lint --if-present
-      - run: npm test -- --run
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test -- --watch=false
       - run: npm run build
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps
       - run: npm run e2e
       - name: Upload Playwright report
         if: failure()
@@ -77,10 +81,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-      - run: npm install
-      - name: Apply schema
-        run: psql "$DATABASE_URL" -f ../db/schema.sql
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      # Verify the migration runner applies cleanly against a real Postgres.
+      - name: Apply migrations
+        run: node dist/migrate.js
         env:
           DATABASE_URL: postgres://breakfit:breakfit@localhost:5432/breakfit
-      - run: npm run build

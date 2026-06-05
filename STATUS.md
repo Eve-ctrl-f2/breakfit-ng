@@ -72,8 +72,7 @@ These are by design — a web app can't do them alone:
 
 ## Open / optional backlog
 
-- Commit `package-lock.json` (root + `/server`); then flip CI to `npm ci`.
-  *(Blocked in the authoring sandbox — `npm install` can't run here; generate the lockfiles in a real environment.)*
+- **Commit `package-lock.json`** (root + `/server`): run `npm install` in each, commit the lockfiles. CI already uses `npm ci`, lints, tests and builds; Node is pinned to 22.x via `.nvmrc` + `engines` (Node 24 is incompatible with the current Vitest).
 - Digest push (weekly recap as a notification).
 - Visual-regression tests; broader unit coverage of the recommendation engine.
 - Capacitor/TWA wrapper for app-store distribution.

@@ -41,7 +41,7 @@ All app endpoints are served under **`/v1`** (`/health` and `/metrics` stay at r
 `/health` · `/metrics` · `/v1/me` · `/v1/me/export` · `/v1/me/delete` ·
 `/v1/auth/*` ·
 `/v1/sync/history` (GET/POST) · `/v1/sync/settings` (GET/PUT) ·
-`/v1/push/*` · `/v1/telemetry/error`
+`/v1/push/*` (incl. `/push/digest-test`) · `/v1/telemetry/error`
 
 ## Delivered (by priority)
 

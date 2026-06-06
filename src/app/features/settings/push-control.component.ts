@@ -21,7 +21,6 @@ import { environment } from '@env/environment';
 export class PushControlComponent {
   readonly push = inject(PushService);
   private platform = inject(PlatformService);
-  readonly isDev = !environment.production;
 
   showIosHint(): boolean {
     // cloud + key configured, on iOS but not installed yet

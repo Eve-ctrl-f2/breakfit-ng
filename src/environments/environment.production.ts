@@ -5,8 +5,8 @@ export const environment: Environment = {
   appVersion: '2.0.0',
   buildDate: new Date().toISOString(),
   cloudEnabled: true,  // live-test: cloud + push on
-  apiBase: 'https://REPLACE-WITH-YOUR-API-URL',  // <-- set to your deployed API
+  apiBase: 'http://localhost:8080',  // local live-test; for a real deploy set your HTTPS API URL
   feedbackEmail: 'feedback@breakfit.app',
   sentryDsn: '',
-  vapidPublicKey: 'BMAOhEylKMI5mJSyFYV6nX9eHwScqK1inkBJQJyAy0MytJGN7eWWNz-otvHJa5aGNL6sbutIole8iGBSAZjA15A',
+  vapidPublicKey: 'BPFPNZkYU7G7xZPmgacaF70af5aLBB2L7BnIMwKeAcuZ6HyBHdTDOrmVlc1pAWVCom5gAfPybCEhGY8lXkhogVY',
 };

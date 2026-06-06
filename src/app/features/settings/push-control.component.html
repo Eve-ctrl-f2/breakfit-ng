@@ -10,10 +10,17 @@
       <p-toggleswitch [ngModel]="push.reminderEnabled()" [disabled]="push.busy()"
                       (ngModelChange)="push.setReminder($event)" />
     </div>
-    @if (isDev) {
+    <div class="set__toggle">
+      <span>{{ 'push.digestLabel' | t }}</span>
+      <p-toggleswitch [ngModel]="push.digestEnabled()" [disabled]="push.busy()"
+                      (ngModelChange)="push.setDigest($event)" />
+    </div>
+    <div class="set__actions">
       <p-button [label]="'push.test' | t" icon="pi pi-send" [text]="true" size="small"
                 (onClick)="push.sendTest()" />
-    }
+      <p-button [label]="'push.digestTest' | t" icon="pi pi-calendar" [text]="true" size="small"
+                (onClick)="push.sendDigestTest()" />
+    </div>
   }
 } @else if (showIosHint()) {
   <p class="muted set__hint">{{ 'push.iosHint' | t }}</p>

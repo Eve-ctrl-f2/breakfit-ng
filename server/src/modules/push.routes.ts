@@ -3,6 +3,7 @@ import type { Sql } from 'postgres';
 import webpush from 'web-push';
 import { z } from 'zod';
 import { requireAuth } from '../server.js';
+import { weeklyCounts, buildDigestPayload } from './digest.js';
 
 interface Deps {
   sql: Sql;
@@ -16,7 +17,11 @@ const subscribeSchema = z.object({
 });
 
 const unsubscribeSchema = z.object({ endpoint: z.string().url() });
-const reminderSchema = z.object({ enabled: z.boolean() });
+const reminderSchema = z
+  .object({ enabled: z.boolean().optional(), digest: z.boolean().optional() })
+  .refine((d) => d.enabled !== undefined || d.digest !== undefined, {
+    message: 'Nichts zu aktualisieren',
+  });
 
 /** ngsw expects this exact payload shape to render a notification. No emoji. */
 export interface PushPayload {
@@ -94,12 +99,17 @@ export async function registerPushRoutes(app: FastifyInstance, { sql }: Deps): P
     return reply.code(201).send({ ok: true });
   });
 
-  // PATCH /reminders — toggle the daily reminder without dropping the subscription
+  // PATCH /reminders — toggle the daily reminder and/or weekly digest
   app.patch('/reminders', { preHandler: requireAuth }, async (req, reply) => {
     const parsed = reminderSchema.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ message: 'Ungültig' });
-    await sql`
-      UPDATE reminders SET enabled = ${parsed.data.enabled} WHERE user_id = ${req.userId!}`;
+    const { enabled, digest } = parsed.data;
+    if (enabled !== undefined) {
+      await sql`UPDATE reminders SET enabled = ${enabled} WHERE user_id = ${req.userId!}`;
+    }
+    if (digest !== undefined) {
+      await sql`UPDATE reminders SET digest_enabled = ${digest} WHERE user_id = ${req.userId!}`;
+    }
     return reply.send({ ok: true });
   });
 
@@ -125,5 +135,17 @@ export async function registerPushRoutes(app: FastifyInstance, { sql }: Deps): P
       },
     });
     return reply.send({ sent });
+  });
+
+  // POST /push/digest-test — send this user's weekly recap to their devices now
+  // (same payload the Monday scheduler would send; ignores the once-a-week gate)
+  app.post('/push/digest-test', { preHandler: requireAuth }, async (req, reply) => {
+    const [prefs] = await sql`
+      SELECT timezone, locale FROM reminders WHERE user_id = ${req.userId!}`;
+    const timezone = (prefs?.timezone as string) ?? 'UTC';
+    const locale = (prefs?.locale as string) ?? 'de';
+    const { lastWeek, prevWeek } = await weeklyCounts(sql, req.userId!, timezone);
+    const sent = await sendToUser(sql, req.userId!, buildDigestPayload(locale, lastWeek, prevWeek));
+    return reply.send({ sent, lastWeek, prevWeek });
   });
 }

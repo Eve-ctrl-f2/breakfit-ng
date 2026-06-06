@@ -11,6 +11,7 @@ import { registerMeRoutes } from './modules/me.routes.js';
 import { registerTelemetryRoutes } from './modules/telemetry.routes.js';
 import { registerPushRoutes, initWebPush } from './modules/push.routes.js';
 import { startReminderScheduler } from './modules/reminder-scheduler.js';
+import { startDigestScheduler } from './modules/digest-scheduler.js';
 import { registerMetrics } from './metrics.js';
 
 const PORT = Number(process.env.PORT ?? 8080);
@@ -104,6 +105,7 @@ registerMetrics(app);
 if (initWebPush()) {
   app.log.info('Web Push enabled (VAPID configured)');
   startReminderScheduler(sql, app.log);
+  startDigestScheduler(sql, app.log);
 } else {
   app.log.warn('Web Push disabled — set VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY');
 }

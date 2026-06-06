@@ -39,6 +39,9 @@ services:
       EMAIL_FROM: ${EMAIL_FROM:-BreakFit <login@breakfit.app>}
       LOG_LEVEL: ${LOG_LEVEL:-info}
       METRICS_TOKEN: ${METRICS_TOKEN:-}
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:feedback@breakfit.app}
     ports: ["8080:8080"]
     depends_on:
       db:

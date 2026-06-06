@@ -8,6 +8,7 @@ export const environment: Environment = {
   // When false the whole auth/cloud-sync surface is disabled and the app is local-only.
   cloudEnabled: false,
   apiBase: 'http://localhost:8080',
+  nativeApiBase: 'http://10.0.2.2:8080', // Android emulator -> host loopback (dev only)
   feedbackEmail: 'feedback@breakfit.app',
   sentryDsn: '',
   vapidPublicKey: '',

@@ -39,6 +39,9 @@ services:
       EMAIL_FROM: ${EMAIL_FROM:-BreakFit <login@breakfit.app>}
       LOG_LEVEL: ${LOG_LEVEL:-info}
       METRICS_TOKEN: ${METRICS_TOKEN:-}
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:feedback@breakfit.app}
     ports: ["8080:8080"]
     depends_on:
       db:
@@ -52,6 +55,20 @@ services:
       timeout: 5s
       retries: 3
       start_period: 20s
+
+  # Single-origin front: serves the built PWA and proxies /v1 (+ /health, /metrics)
+  # to the api service. Run `npm run build` first so dist/ exists. Open
+  # http://localhost:4200 on desktop, or expose this port via one HTTPS tunnel
+  # for iPhone PWA testing (see TESTING-IOS.md).
+  web:
+    image: nginx:alpine
+    depends_on:
+      api:
+        condition: service_started
+    ports: ["4200:80"]
+    volumes:
+      - "./dist/breakfit/browser:/usr/share/nginx/html:ro"
+      - "./deploy/nginx/web.conf:/etc/nginx/conf.d/default.conf:ro"
 
 volumes:
   bf_pgdata:

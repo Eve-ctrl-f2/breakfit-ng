@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">BreakFit</string>
+    <string name="title_activity_main">BreakFit</string>
+    <string name="package_name">app.breakfit</string>
+    <string name="custom_url_scheme">app.breakfit</string>
+</resources>

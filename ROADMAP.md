@@ -25,7 +25,9 @@ flag for cloud · Fastify+Postgres+Redis backend (schema, auth, sync, deletion)
 | P2 | **Real server push** | Web Push (VAPID) so reminders fire with the tab closed on Android/desktop; iOS only as installed PWA. Backend endpoint + SW push handler. |
 | ✅ | **Streak freeze / rest days** | Done — per-weekday rest days in settings; streak math freezes (neither counts nor breaks) on empty rest days. |
 | ✅ | **Exercise instructions / media** | Done — per-exercise how-to steps (all 16 base + optional on custom), shown via a 'How to' toggle in the break modal; optional `mediaUrl` renders a demo image/clip when provided. |
-| ✅ | **Weekly recap** | Done — Insights recap card: this-week count, signed delta vs last week, 7-day mini bars. (Digest push still optional.) |
+| ✅ | **Weekly recap** | Done — Insights recap card: this-week count, signed delta vs last week, 7-day mini bars. |
+| ◑ | **Native wrapper (Capacitor)** | Web-side done: `capacitor.config.ts`, dependency-free `native-bridge.ts` (registers `window.bfHealth` → custom `Health` plugin; splash/status-bar), wired in `main.ts`. Remaining (CLI, needs Xcode/Studio): `cap add ios/android`, drop in the provided `Health` plugin (HealthKit / Health Connect code in `native/`), optional native push. See CAPACITOR.md. |
+| ✅ | **Digest push** | Done — weekly recap as a push: Monday-morning (user-local) summary of the finished week vs the one before; opt-in (`digest_enabled`), gated once/week. `digest-scheduler.ts` + `0002_digest.sql`. |
 | ◑ | **Lockfiles + CI hardening** | CI runs lint+test+build+e2e on `npm ci` against a real Postgres/Redis; Node pinned to 22.x (`.nvmrc`+`engines`); flat ESLint config committed. Remaining: commit the generated `package-lock.json` files. |
 | ✅ | **DB migrations + API `/v1`** | Versioned migration runner (`server/migrations/*.sql`, auto-applied on boot) replaces initdb; app API served under `/v1`. |
 | ✅ | **More locales** | Done — Spanish + Italian added; catalog now DE/EN/FR/ES/IT, all 195 keys symmetric. |

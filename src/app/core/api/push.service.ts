@@ -26,6 +26,8 @@ export class PushService {
 
   readonly subscribed = signal(false);
   readonly reminderEnabled = signal(true);
+  /** weekly recap push — opt-in, off by default */
+  readonly digestEnabled = signal(false);
   readonly busy = signal(false);
 
   /** true only where Web Push can actually work right now */
@@ -93,8 +95,19 @@ export class PushService {
     await firstValueFrom(this.http.patch('/reminders', { enabled })).catch(() => undefined);
   }
 
+  /** Toggle the weekly recap ("digest") push server-side. */
+  async setDigest(enabled: boolean): Promise<void> {
+    this.digestEnabled.set(enabled);
+    await firstValueFrom(this.http.patch('/reminders', { digest: enabled })).catch(() => undefined);
+  }
+
   /** Ask the backend to send a verification push to this user's devices. */
   async sendTest(): Promise<void> {
     await firstValueFrom(this.http.post('/push/test', {}));
+  }
+
+  /** Ask the backend to send this user's weekly recap right now (dev/verify). */
+  async sendDigestTest(): Promise<void> {
+    await firstValueFrom(this.http.post('/push/digest-test', {}));
   }
 }

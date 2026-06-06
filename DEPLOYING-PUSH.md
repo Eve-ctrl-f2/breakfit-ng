@@ -70,7 +70,7 @@ Zum schnellen Test das Fenster aufmachen und Intervall verkürzen — in `server
 ```
 REMINDER_INTERVAL_MIN=1
 REMINDER_WINDOW_START=0
-REMINDER_WINDOW_END=23
+REMINDER_WINDOW_END (daily); DIGEST_INTERVAL_MIN / DIGEST_WINDOW_START / DIGEST_WINDOW_END (weekly recap, Monday-local)=23
 ```
 Backend neu starten. Bedingungen für einen Nudge: Push abonniert, `reminders.enabled=true`,
 heute (lokale TZ) noch keine `completed`-Pause, aber ≥1 in den letzten 7 Tagen, und noch kein

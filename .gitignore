@@ -8,3 +8,11 @@ server/dist/
 server/node_modules/
 server/.env
 .env
+
+# Capacitor (generated artifacts; keep ios/ and android/ source committed)
+/ios/App/Pods
+/ios/App/App/public
+/android/.gradle
+/android/build
+/android/app/build
+/android/app/src/main/assets/public

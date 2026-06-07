@@ -94,17 +94,26 @@
   <!-- Notifications -->
   <p-card styleClass="set-card">
     <p class="set__h">{{ 'settings.notif' | t }}</p>
+
+    <!-- master: enables reminders at all -->
     <div class="set__toggle">
       <span>{{ 'settings.push' | t }}</span>
       <p-toggleswitch [ngModel]="st().notificationsEnabled"
                       (ngModelChange)="onNotifToggle($event)" />
     </div>
-    <div class="set__toggle">
-      <span>{{ 'settings.sound' | t }}</span>
-      <p-toggleswitch [ngModel]="st().soundEnabled"
-                      (ngModelChange)="patch({ soundEnabled: $event })" />
-    </div>
-    <bf-push-control />
+
+    <!-- detail: only meaningful once reminders are on -->
+    @if (st().notificationsEnabled) {
+      <div class="set__subgroup">
+        <div class="set__toggle">
+          <span>{{ 'settings.sound' | t }}</span>
+          <p-toggleswitch [ngModel]="st().soundEnabled"
+                          (ngModelChange)="patch({ soundEnabled: $event })" />
+        </div>
+        <bf-push-control />
+      </div>
+    }
+
     @if (notify.permission() !== 'granted') {
       <p class="muted set__hint">{{ 'settings.notifHint' | t }}</p>
     }

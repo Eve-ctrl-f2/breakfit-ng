@@ -12,7 +12,11 @@
       <span class="stat__lbl muted">{{ 'insights.stat.streak' | t }}</span>
     </div>
     <div class="stat">
-      <span class="stat__num mono">{{ ratePct() }}%</span>
+      @if (s().completedBreaks >= 5) {
+        <span class="stat__num mono">{{ ratePct() }}%</span>
+      } @else {
+        <span class="stat__num mono stat__num--empty">–</span>
+      }
       <span class="stat__lbl muted">{{ 'insights.stat.rate' | t }}</span>
     </div>
   </div>

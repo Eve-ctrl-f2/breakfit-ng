@@ -81,6 +81,45 @@ export const BreakFitPreset = definePreset(Aura, {
           mutedColor: '#9a9aa6',
         },
       },
+      light: {
+        primary: {
+          color: '{lime.400}',
+          contrastColor: '#08080c',
+          hoverColor: '{lime.500}',
+          activeColor: '{lime.600}',
+        },
+        surface: {
+          0: '#ffffff',
+          50: '#f6f6fa',
+          100: '#eeeef3',
+          200: '#e2e2ea',
+          300: '#d4d4de',
+          400: '#bcbcc8',
+          500: '#9a9aa6',
+          600: '#82828e',
+          700: '#54545f',
+          800: '#2c2c36',
+          900: '#14141a',
+          950: '#08080c',
+        },
+        formField: {
+          background: '#ffffff',
+          borderColor: '{surface.300}',
+          hoverBorderColor: '{surface.400}',
+          focusBorderColor: '{primary.color}',
+          color: '{surface.900}',
+          placeholderColor: '{surface.500}',
+        },
+        content: {
+          background: '#ffffff',
+          borderColor: '{surface.200}',
+          color: '{surface.900}',
+        },
+        text: {
+          color: '#14141a',
+          mutedColor: '#54545f',
+        },
+      },
     },
   },
   components: {
@@ -95,13 +134,13 @@ export const BreakFitPreset = definePreset(Aura, {
     dialog: {
       root: {
         borderRadius: '20px',
-        background: '{surface.700}',
+        background: '{content.background}',
       },
     },
     card: {
       root: {
         borderRadius: '16px',
-        background: '{surface.700}',
+        background: '{content.background}',
       },
     },
   },

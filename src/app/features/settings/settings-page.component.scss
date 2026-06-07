@@ -44,3 +44,13 @@
   background: var(--surface-3);
   color: var(--text-1);
 }
+
+/* notification sub-options, visually nested under the master toggle */
+.set__subgroup {
+  margin: var(--s-2) 0 0;
+  padding-left: var(--s-3);
+  border-left: 2px solid var(--border-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1, 4px);
+}

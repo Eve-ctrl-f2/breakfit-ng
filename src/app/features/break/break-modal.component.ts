@@ -17,12 +17,13 @@ import { MeetingService, MEETING_PRESETS } from '@core/services/meeting.service'
 import { SyncService } from '@core/api/sync.service';
 import { HealthService } from '@core/services/health.service';
 import { CATEGORY_LABELS, CATEGORY_COLOR_VAR } from '@core/data/exercises.data';
+import { TranslationService } from '@core/i18n/translation.service';
 import { TPipe } from '@core/i18n/t.pipe';
 import type { Recommendation } from '@core/models/models';
 
 type Step = 'exercise' | 'feedback' | 'meeting' | 'snooze';
 
-const SNOOZE_PRESETS = [2, 5, 10] as const;
+const SNOOZE_PRESETS = [5, 10, 15, 30] as const;
 
 @Component({
   selector: 'bf-break-modal',
@@ -38,9 +39,12 @@ export class BreakModalComponent {
   private meetingSvc = inject(MeetingService);
   private sync = inject(SyncService);
   private health = inject(HealthService);
+  private i18n = inject(TranslationService);
 
   readonly meetingPresets = MEETING_PRESETS;
   readonly snoozePresets = SNOOZE_PRESETS;
+  /** free-text "custom" duration entry (minutes), shared by meeting & snooze */
+  readonly customMinutes = signal('');
 
   /** controlled by the app shell */
   readonly open = input(false);
@@ -132,7 +136,29 @@ export class BreakModalComponent {
 
   async snooze(): Promise<void> {
     // open the duration chooser instead of postponing immediately
+    this.customMinutes.set('');
     this.step.set('snooze');
+  }
+
+  /** "5 Min", "1 Std" — collapses whole hours so 60 reads as 1 Std, not 60 Min. */
+  durationLabel(minutes: number): string {
+    return minutes % 60 === 0
+      ? `${minutes / 60} ${this.i18n.t('common.hourShort')}`
+      : `${minutes} ${this.i18n.t('common.minShort')}`;
+  }
+
+  /** custom entry is valid for 1..600 minutes */
+  customMinutesValid(): boolean {
+    const n = Number(this.customMinutes());
+    return Number.isInteger(n) && n >= 1 && n <= 600;
+  }
+
+  startCustomSnooze(): void {
+    if (this.customMinutesValid()) void this.startSnooze(Number(this.customMinutes()));
+  }
+
+  startCustomMeeting(): void {
+    if (this.customMinutesValid()) this.startMeeting(Number(this.customMinutes()));
   }
 
   async startSnooze(minutes: number): Promise<void> {
@@ -148,6 +174,7 @@ export class BreakModalComponent {
   }
 
   meeting(): void {
+    this.customMinutes.set('');
     this.step.set('meeting');
   }
 

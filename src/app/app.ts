@@ -13,13 +13,14 @@ import { SyncCoordinatorService } from './core/services/sync-coordinator.service
 import { NativeReminderService } from './core/services/native-reminder.service';
 import { BreakModalComponent } from './features/break/break-modal.component';
 import { OnboardingComponent } from './features/onboarding/onboarding.component';
+import { ToastComponent } from './shared/toast.component';
 import { OnboardingService } from './core/services/onboarding.service';
 import { TPipe } from './core/i18n/t.pipe';
 
 @Component({
   selector: 'bf-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, BreakModalComponent, OnboardingComponent, TPipe],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, BreakModalComponent, OnboardingComponent, ToastComponent, TPipe],
   host: { '(document:visibilitychange)': 'onVisibility()' },
   template: `
     <div class="app-shell">
@@ -53,6 +54,9 @@ import { TPipe } from './core/i18n/t.pipe';
       @if (onboarding.shouldShow()) {
         <bf-onboarding />
       }
+
+      <!-- transient snackbar (e.g. undo after stopping a session) -->
+      <bf-toast />
     </div>
   `,
 })
@@ -78,10 +82,23 @@ export class App {
       if (this.timer.breakDue() > 0) this.breakOpen.set(true);
     });
 
-    // tab-title alert cue (🔔 lives here, not in system notifications)
+    // tab-title + app-icon alert cue. A browser tab title can't hold an icon,
+    // so we use a neutral typographic marker (not an emoji); installed PWAs also
+    // get a real app-icon badge via the Badging API where it's supported.
     effect(() => {
+      const alert = this.notify.titleAlert();
       const base = 'BreakFit';
-      this.titleSvc.setTitle(this.notify.titleAlert() ? `🔔 ${base}` : base);
+      this.titleSvc.setTitle(alert ? `\u25CF ${base}` : base);
+      const nav = navigator as Navigator & {
+        setAppBadge?: (n?: number) => Promise<void>;
+        clearAppBadge?: () => Promise<void>;
+      };
+      try {
+        if (alert) void nav.setAppBadge?.(1);
+        else void nav.clearAppBadge?.();
+      } catch {
+        /* badging unsupported — ignore */
+      }
     });
   }
 

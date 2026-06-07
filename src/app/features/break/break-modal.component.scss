@@ -10,7 +10,17 @@
 .reps__row { display: flex; align-items: center; gap: var(--s-3); justify-content: center; }
 .reps__caption { margin: 0; font-size: 0.8rem; letter-spacing: 0.04em; text-transform: uppercase; }
 
-.break__shuffle { display: block; margin: 0 auto; }
+.break__shuffle {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  margin: var(--s-2) auto 0;
+  background: none; border: none; cursor: pointer;
+  color: var(--text-1); font: inherit; font-size: 0.92rem; font-weight: 600;
+  padding: 6px 12px; border-radius: 10px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.break__shuffle:hover { color: var(--accent); background: var(--surface-2); }
+.break__shuffle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.break__shuffle .pi { font-size: 0.9rem; }
 .break__how-toggle { display: inline-flex; align-items: center; gap: 6px; margin: 0 auto;
                      background: none; border: none; color: var(--accent); cursor: pointer;
                      font-size: 0.85rem; padding: 4px 8px; }
@@ -22,11 +32,99 @@
 
 .break__fb-q { text-align: center; }
 .break__fb { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: var(--s-2); }
-.break__meeting { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-2); }
+
+/* ---- meeting / snooze picker: custom tiles. PrimeNG's <p-button> host doesn't
+   reliably fill a grid cell (leaving a big gap between columns), so the pickers
+   use plain buttons we fully control for fill, sizing and states. ---- */
+.picker {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s-2);
+  margin-top: var(--s-2);
+}
+.picker__opt {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 52px; padding: 0 var(--s-3);
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  border-radius: 14px;
+  color: var(--text-1);
+  font: inherit; font-weight: 600; font-size: 1.05rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.04s ease;
+}
+.picker__opt:hover { border-color: var(--accent); background: var(--surface-3); }
+.picker__opt:active { transform: scale(0.98); }
+.picker__opt:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.picker__opt:disabled { opacity: 0.45; cursor: not-allowed; }
+/* lone last option (odd count, e.g. snooze "1 Std") spans the full width */
+.picker > .picker__opt:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
+/* custom entry row: input grows, OK stays compact, equal heights */
+.picker__custom { display: flex; gap: var(--s-2); align-items: stretch; margin-top: var(--s-2); }
+.picker__custom .break__custom-input { flex: 1 1 0; min-height: 52px; }
+.picker__ok { flex: 0 0 auto; min-width: 76px; }
+.picker__opt--accent {
+  background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700;
+}
+.picker__opt--accent:hover:not(:disabled) {
+  background: var(--accent); border-color: var(--accent); filter: brightness(1.06);
+}
+
+/* cancel: a calm full-width ghost, not an orphaned mini-link */
+.picker__cancel {
+  display: block; width: 100%; margin-top: var(--s-3);
+  background: none; border: none; border-radius: 10px;
+  color: var(--text-2); font: inherit; font-size: 0.92rem;
+  padding: var(--s-2); cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.picker__cancel:hover { color: var(--text-1); background: var(--surface-2); }
+
+/* shared input look (custom snooze field) */
+.break__custom-input {
+  min-width: 0;
+  background: var(--surface-1); color: var(--text-1);
+  border: 1px solid var(--border-2); border-radius: 14px;
+  padding: 0 var(--s-3); font: inherit; text-align: center; font-size: 1.05rem;
+}
+.break__custom-input::placeholder { color: var(--text-3); }
+.break__custom-input:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: -1px; border-color: var(--accent);
+}
 
 .break__actions { display: flex; flex-direction: column; gap: var(--s-2); width: 100%; }
-.break__row { display: flex; gap: var(--s-2); }
-:host ::ng-deep .break__flex { flex: 1 1 0; min-width: 0; }
-:host ::ng-deep .break__flex .p-button { width: 100%; }
-:host ::ng-deep .break__done .p-button { width: 100%; }
-.break__skip { align-self: center; }
+.break__row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-2); }
+
+/* custom action buttons (PrimeNG button hosts don't fill reliably inside the
+   projected dialog footer, so we control these directly) */
+.actbtn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 52px; padding: 0 var(--s-3);
+  border: 1px solid transparent; border-radius: 14px;
+  font: inherit; font-weight: 600; font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.04s ease, filter 0.15s ease;
+}
+.actbtn:active { transform: scale(0.985); }
+.actbtn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.actbtn .pi { font-size: 1rem; }
+.actbtn--ghost { background: var(--surface-2); border-color: var(--border-2); color: var(--text-1); }
+.actbtn--ghost:hover { border-color: var(--accent); background: var(--surface-3); }
+.actbtn--primary {
+  background: var(--accent); color: var(--accent-ink);
+  font-weight: 700; font-size: 1.05rem; min-height: 56px;
+}
+.actbtn--primary:hover { filter: brightness(1.06); }
+/* accent but same height as the ghosts — for in-row choices like the feedback step */
+.actbtn--accent {
+  background: var(--accent); color: var(--accent-ink);
+  border-color: var(--accent); font-weight: 700;
+}
+.actbtn--accent:hover { filter: brightness(1.06); }
+.actbtn--skip {
+  background: none; border: none; color: var(--danger);
+  font-size: 0.92rem; font-weight: 600; min-height: auto; padding: var(--s-2);
+  border-radius: 10px;
+}
+.actbtn--skip:hover { background: color-mix(in srgb, var(--danger) 14%, transparent); }

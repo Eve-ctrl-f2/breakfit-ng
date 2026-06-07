@@ -188,7 +188,29 @@ Handled by `native-bridge.ts` via the optional `@capacitor/splash-screen` and
 and the status bar is set to the dark style to match the app. Both calls are guarded,
 so missing plugins are a no-op.
 
-## 7. Push (follow-up)
+## 7. Local notifications (native reminder loop)
+
+The app schedules an on-device notification for the end of the running phase
+(focus -> "break due", break -> "break over") so reminders fire even when the
+app is backgrounded or closed. This is wired in `NativeReminderService` +
+`local-notifications.ts` (dependency-free; no-op on web). To enable it natively:
+
+```bash
+npm i @capacitor/local-notifications@latest
+npm run build && npx cap sync
+```
+
+- **Permission:** the OS prompt appears the first time a timer starts (Android 13+
+  and iOS require notification permission; the plugin requests it). The plugin adds
+  the needed manifest permission on Android automatically.
+- **Android small icon (optional but recommended):** add a white/transparent
+  monochrome icon at `android/app/src/main/res/drawable/ic_stat_icon.png`, otherwise
+  Android may render a generic square. (The code doesn't hard-require it.)
+- **Behaviour:** respects the in-app "Benachrichtigungen" toggle, reschedules on
+  start/resume, cancels on pause/reset. On web nothing changes — the foreground
+  NotificationService handles cues there.
+
+## 8. Push (follow-up)
 
 Web Push (VAPID + Service Worker) keeps working in the installed PWA, but inside the
 Capacitor WebView the reliable path is **native** push via `@capacitor/push-notifications`

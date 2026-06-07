@@ -10,6 +10,7 @@ import { Title } from '@angular/platform-browser';
 import { TimerService } from './core/services/timer.service';
 import { NotificationService } from './core/services/notification.service';
 import { SyncCoordinatorService } from './core/services/sync-coordinator.service';
+import { NativeReminderService } from './core/services/native-reminder.service';
 import { BreakModalComponent } from './features/break/break-modal.component';
 import { OnboardingComponent } from './features/onboarding/onboarding.component';
 import { OnboardingService } from './core/services/onboarding.service';
@@ -59,6 +60,7 @@ export class App {
   private timer = inject(TimerService);
   private notify = inject(NotificationService);
   private sync = inject(SyncCoordinatorService);
+  private nativeReminder = inject(NativeReminderService);
   readonly onboarding = inject(OnboardingService);
   private titleSvc = inject(Title);
 

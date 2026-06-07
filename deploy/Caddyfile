@@ -1,0 +1,18 @@
+# Single-origin production front for BreakFit with automatic HTTPS.
+# DOMAIN is injected by docker-compose.prod.yml. Caddy obtains/renews a
+# Let's Encrypt certificate for it automatically (needs ports 80+443 and DNS
+# pointing at this host).
+{$DOMAIN} {
+	encode gzip
+	root * /srv
+
+	# API + infra endpoints -> api service (path preserved)
+	@api path /v1/* /health /metrics
+	reverse_proxy @api api:8080
+
+	# PWA assets + SPA fallback
+	handle {
+		try_files {path} /index.html
+		file_server
+	}
+}

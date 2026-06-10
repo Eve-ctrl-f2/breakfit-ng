@@ -19,6 +19,7 @@ import { AuthService } from './core/api/auth.service';
 import { SyncService } from './core/api/sync.service';
 import { PlatformService } from './core/services/platform.service';
 import { ThemeService } from './core/services/theme.service';
+import { AppUpdateService } from './core/services/app-update.service';
 import { GlobalErrorHandler } from './core/error/global-error-handler';
 
 export const appConfig: ApplicationConfig = {
@@ -56,6 +57,7 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => {
       inject(PlatformService); // eager — must catch beforeinstallprompt
       inject(ThemeService); // eager — apply theme/accent before first paint
+      inject(AppUpdateService).init(); // watch for new SW versions, prompt reload
       inject(SyncService).enableAutoSync();
       const auth = inject(AuthService);
       const sync = inject(SyncService);

@@ -18,7 +18,9 @@ export class UiToastService {
   show(data: ToastData, durationMs = 6000): void {
     if (this.timer) clearTimeout(this.timer);
     this.current.set(data);
-    this.timer = setTimeout(() => this.dismiss(), durationMs);
+    // durationMs <= 0 => sticky (stays until acted on/dismissed); used by the
+    // "new version available" prompt so it can't time out before a reload.
+    this.timer = durationMs > 0 ? setTimeout(() => this.dismiss(), durationMs) : null;
   }
 
   runAction(): void {

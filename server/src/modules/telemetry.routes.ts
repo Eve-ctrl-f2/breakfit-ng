@@ -6,6 +6,8 @@ const errorSchema = z.object({
   at: z.number().optional(),
   ua: z.string().max(500).optional(),
   version: z.string().max(50).optional(),
+  url: z.string().max(500).optional(),
+  stack: z.string().max(4000).optional(),
 });
 
 /**

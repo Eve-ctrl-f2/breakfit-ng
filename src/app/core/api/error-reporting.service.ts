@@ -45,6 +45,10 @@ export class ErrorReportingService {
             at: entry.at,
             ua: navigator.userAgent,
             version: environment.appVersion,
+            // route + stack make a report actionable; pathname only (no query)
+            // to avoid leaking anything sensitive from URLs.
+            url: location.pathname,
+            stack: error instanceof Error ? error.stack?.slice(0, 4000) : undefined,
           })
           .subscribe({ error: () => { /* swallow */ } }); // swallow: reporting must never cascade
       } catch {

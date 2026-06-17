@@ -10,6 +10,7 @@
 .set__toggle { display: flex; justify-content: space-between; align-items: center;
                padding: 8px 0; font-size: 0.9rem; color: var(--text-1); }
 .set__hint { font-size: 0.8rem; margin: var(--s-2) 0 0; }
+.set__cta { margin-top: var(--s-3); }
 .set__cloud-actions { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-3); }
 .set__accents { display: flex; gap: var(--s-2); margin-top: var(--s-3); }
 .set__accent { width: 32px; height: 32px; border-radius: 999px; border: 2px solid transparent;

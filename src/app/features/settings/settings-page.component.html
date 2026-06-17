@@ -170,7 +170,9 @@
       <p class="set__h">{{ 'settings.cloud' | t }}</p>
       @if (!auth.isAuthed()) {
         <p class="muted set__hint">{{ 'settings.cloudHint' | t }}</p>
-        <p-button [label]="'settings.signin' | t" icon="pi pi-cloud" routerLink="/auth/login" />
+        <div class="set__cta">
+          <p-button [label]="'settings.signin' | t" icon="pi pi-cloud" routerLink="/auth/login" />
+        </div>
       } @else {
         <p class="muted set__hint">{{ auth.user()?.email }}</p>
         <div class="set__cloud-actions">

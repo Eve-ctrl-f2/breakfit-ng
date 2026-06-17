@@ -23,6 +23,9 @@
   --accent-15: rgb(var(--accent-rgb) / 0.15);
   --accent-25: rgb(var(--accent-rgb) / 0.25);
   --accent-40: rgb(var(--accent-rgb) / 0.4);
+  /* fixed calm hue for the break phase (independent of the chosen accent) */
+  --rest-rgb: 95 208 224;
+  --rest: rgb(var(--rest-rgb));
   /* foreground that sits on top of a solid accent fill */
   --accent-ink: #08080c;
   --warn: #f5c466;
@@ -41,7 +44,7 @@
   /* text */
   --text-1: #f3f3f7;
   --text-2: #b0b0bc;
-  --text-3: #7c7c88;
+  --text-3: #9a9aa6;
 
   /* spacing scale */
   --s-1: 4px;
@@ -71,8 +74,10 @@
   --border-2: #d4d4de;
   --border-3: #bcbcc8;
   --text-1: #14141a;
-  --text-2: #54545f;
-  --text-3: #82828e;
+  --text-2: #50505b;
+  --text-3: #6b6b76;
+  /* break-phase "rest" hue, darkened for contrast on light surfaces */
+  --rest-rgb: 18 125 142;
   color-scheme: light;
 }
 
@@ -83,12 +88,27 @@
 :root[data-accent="coral"]  { --accent-rgb: 240 96 144; }
 :root[data-accent="violet"] { --accent-rgb: 168 144 240; }
 
+/* ---- light mode: bright accents are unreadable as text/marks on white,
+   so each is darkened to a legible shade (fills become a deeper tone that
+   still reads well on light surfaces; the bright CTA stays via PrimeNG primary) ---- */
+:root.theme-light[data-accent="lime"]   { --accent-rgb: 94 125 31; }
+:root.theme-light[data-accent="cyan"]   { --accent-rgb: 18 125 142; }
+:root.theme-light[data-accent="amber"]  { --accent-rgb: 150 105 10; }
+:root.theme-light[data-accent="coral"]  { --accent-rgb: 186 44 102; }
+:root.theme-light[data-accent="violet"] { --accent-rgb: 108 70 200; }
+
+/* locked milestone glyphs were nearly invisible on white (card elevation
+   lives in the "Light-mode polish" block below) */
+:root.theme-light .ms__icon { color: var(--text-2); }
+
 * { box-sizing: border-box; }
 
 html, body {
   margin: 0;
   padding: 0;
   height: 100%;
+  overflow-x: hidden;
+  max-width: 100%;
   background: var(--bg);
   color: var(--text-1);
   font-family: var(--font-body);
@@ -176,6 +196,7 @@ input, select, textarea { font-size: 16px; }
     height: calc(var(--nav-h) + env(safe-area-inset-bottom));
   }
   .bottom-nav a {
+    min-height: 44px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -193,6 +214,7 @@ input, select, textarea { font-size: 16px; }
 /* reps counter (carried over from React build — invisible-input bug fix) */
 .reps-counter {
   width: 84px;
+  min-height: 44px;
   text-align: center;
   background: var(--surface-1);
   color: var(--text-1);
@@ -333,4 +355,113 @@ input, select, textarea { font-size: 16px; }
   ::view-transition-new(*) {
     animation: none !important;
   }
+}
+
+/* ---- PrimeNG selectbutton: wrap instead of forcing horizontal overflow ---- */
+.p-selectbutton {
+  display: inline-flex !important;
+  flex-wrap: wrap !important;
+  max-width: 100%;
+}
+
+/* ---- PrimeNG selectbutton items (segmented): the protruding green "box" on
+   the selected item is PrimeNG's raised pseudo-element + shadow. Kill both
+   pseudos and all shadows/outlines, then define the selected state flat:
+   subtle lime tint + lime label + a flush (non-protruding) lime border. ---- */
+.p-togglebutton::before,
+.p-togglebutton::after {
+  display: none !important;
+}
+.p-togglebutton,
+.p-togglebutton:hover,
+.p-togglebutton:focus,
+.p-togglebutton:focus-visible,
+.p-togglebutton.p-togglebutton-checked,
+.p-togglebutton.p-highlight,
+.p-togglebutton .p-togglebutton-content {
+  box-shadow: none !important;
+  outline: none !important;
+  z-index: auto !important;
+}
+.p-togglebutton.p-togglebutton-checked,
+.p-togglebutton.p-highlight {
+  background: var(--accent-15) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+}
+/* keyboard focus only: a contained ring that never leaves the group */
+.p-togglebutton:focus-visible {
+  outline: 2px solid var(--accent) !important;
+  outline-offset: -2px !important;
+}
+
+/* ---- PrimeNG toggleswitch: make the OFF state clearly recognizable ---- */
+:root {
+  /* OFF: visible mid-tone track + high-contrast handle (both themes) */
+  --p-toggleswitch-background: var(--border-3);
+  --p-toggleswitch-hover-background: var(--border-3);
+  --p-toggleswitch-border-color: var(--border-3);
+  --p-toggleswitch-handle-background: var(--text-1);
+  --p-toggleswitch-handle-hover-background: var(--text-1);
+  --p-toggleswitch-checked-background: var(--accent);
+  --p-toggleswitch-checked-hover-background: var(--accent);
+  --p-toggleswitch-handle-checked-background: var(--accent-ink);
+}
+/* structural fallback: visible track + handle even if token names shift */
+.p-toggleswitch .p-toggleswitch-slider {
+  background: var(--border-3) !important;
+  border: 1px solid var(--border-3) !important;
+}
+.p-toggleswitch .p-toggleswitch-handle { background: var(--text-1) !important; }
+.p-toggleswitch.p-toggleswitch-checked .p-toggleswitch-slider {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
+.p-toggleswitch.p-toggleswitch-checked .p-toggleswitch-handle { background: var(--accent-ink) !important; }
+
+/* =========================================================================
+   Light-mode polish
+   White cards on the off-white page need a soft shadow to read as distinct
+   surfaces (in dark mode the lighter-than-bg surface already separates them,
+   and dark shadows would be invisible — so this is scoped to .theme-light).
+   ========================================================================= */
+:root.theme-light .p-card,
+:root.theme-light .stat {
+  box-shadow: 0 1px 2px rgb(16 16 26 / 0.05), 0 8px 20px rgb(16 16 26 / 0.08);
+}
+:root.theme-light .p-card { border: 1px solid var(--border-2); }
+/* cooler, slightly darker page so the pure-white cards clearly separate */
+:root.theme-light { --bg: #e9ebf1; }
+
+/* ---- modal scrim: obscure the app behind dialogs/overlays.
+   PrimeNG's default mask is too sheer, so the timer page reads through. ---- */
+.p-dialog-mask,
+.p-overlay-mask {
+  background: rgba(4, 4, 8, 0.92) !important;
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+/* ---- break/exercise dialog: deliberate header + padding (PrimeNG defaults leave
+   a big gap between the title and the centered body). Styled globally because the
+   dialog is appended to <body>, outside the component. ---- */
+.break-dialog.p-dialog {
+  border: 1px solid var(--border-2);
+}
+.break-dialog .p-dialog-header {
+  padding: 20px 20px 6px;
+  border: none;
+}
+.break-dialog .p-dialog-content {
+  padding: 6px 20px 16px;
+}
+.break-dialog .p-dialog-footer {
+  padding: 4px 20px 20px;
+  border: none;
+}
+.break-dialog .break__title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--text-1);
 }

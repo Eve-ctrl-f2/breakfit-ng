@@ -66,34 +66,49 @@
         </p>
       </div>
 
-      <p-button [label]="'break.other' | t" icon="pi pi-refresh" [text]="true"
-                size="small" styleClass="break__shuffle" (onClick)="reshuffle()" />
+      <button type="button" class="break__shuffle" (click)="reshuffle()">
+        <i class="pi pi-refresh" aria-hidden="true"></i>{{ 'break.other' | t }}
+      </button>
     } @else if (step() === 'feedback') {
       <!-- feedback -->
       <p class="break__fb-q muted">{{ 'break.fb.question' | t }}</p>
       <div class="break__fb">
-        <p-button [label]="'break.fb.tooEasy' | t" [outlined]="true" (onClick)="finish(-1)" />
-        <p-button [label]="'break.fb.ok' | t" (onClick)="finish(0)" />
-        <p-button [label]="'break.fb.tooHard' | t" [outlined]="true" (onClick)="finish(1)" />
+        <button type="button" class="actbtn actbtn--ghost" (click)="finish(-1)">{{ 'break.fb.tooEasy' | t }}</button>
+        <button type="button" class="actbtn actbtn--accent" (click)="finish(0)">{{ 'break.fb.ok' | t }}</button>
+        <button type="button" class="actbtn actbtn--ghost" (click)="finish(1)">{{ 'break.fb.tooHard' | t }}</button>
       </div>
     } @else if (step() === 'meeting') {
       <p class="break__fb-q muted">{{ 'meeting.choose' | t }}</p>
-      <div class="break__meeting">
+      <div class="picker">
         @for (m of meetingPresets; track m) {
-          <p-button [label]="m + ' min'" [outlined]="true" (onClick)="startMeeting(m)" />
+          <button type="button" class="picker__opt" (click)="startMeeting(m)">{{ durationLabel(m) }}</button>
         }
       </div>
-      <p-button [label]="'common.cancel' | t" severity="secondary" [text]="true"
-                size="small" styleClass="break__shuffle" (onClick)="step.set('exercise')" />
+      <div class="picker__custom">
+        <input class="break__custom-input" type="text" inputmode="numeric"
+               [ngModel]="customMinutes()" (ngModelChange)="customMinutes.set($event)"
+               [attr.aria-label]="'snooze.custom' | t"
+               [attr.placeholder]="'snooze.customPlaceholder' | t" />
+        <button type="button" class="picker__opt picker__opt--accent picker__ok"
+                [disabled]="!customMinutesValid()" (click)="startCustomMeeting()">{{ 'common.ok' | t }}</button>
+      </div>
+      <button type="button" class="picker__cancel" (click)="step.set('exercise')">{{ 'common.cancel' | t }}</button>
     } @else if (step() === 'snooze') {
       <p class="break__fb-q muted">{{ 'snooze.choose' | t }}</p>
-      <div class="break__meeting">
+      <div class="picker">
         @for (m of snoozePresets; track m) {
-          <p-button [label]="m + ' min'" [outlined]="true" (onClick)="startSnooze(m)" />
+          <button type="button" class="picker__opt" (click)="startSnooze(m)">{{ durationLabel(m) }}</button>
         }
       </div>
-      <p-button [label]="'common.cancel' | t" severity="secondary" [text]="true"
-                size="small" styleClass="break__shuffle" (onClick)="step.set('exercise')" />
+      <div class="picker__custom">
+        <input class="break__custom-input" type="text" inputmode="numeric"
+               [ngModel]="customMinutes()" (ngModelChange)="customMinutes.set($event)"
+               [attr.aria-label]="'snooze.custom' | t"
+               [attr.placeholder]="'snooze.customPlaceholder' | t" />
+        <button type="button" class="picker__opt picker__opt--accent picker__ok"
+                [disabled]="!customMinutesValid()" (click)="startCustomSnooze()">{{ 'common.ok' | t }}</button>
+      </div>
+      <button type="button" class="picker__cancel" (click)="step.set('exercise')">{{ 'common.cancel' | t }}</button>
     }
   } @else {
     <p class="muted">{{ 'break.emptyPool' | t }}</p>
@@ -103,19 +118,21 @@
   @if (step() === 'exercise' && rec()) {
     <ng-template #footer>
       <div class="break__actions">
-        <!-- row 1: postpone actions, equal weight -->
+        <!-- postpone actions, equal weight -->
         <div class="break__row">
-          <p-button [label]="'break.meeting' | t" icon="pi pi-calendar" severity="secondary"
-                    [outlined]="true" styleClass="break__flex" (onClick)="meeting()" />
-          <p-button [label]="'break.snooze' | t" icon="pi pi-clock" severity="secondary"
-                    [outlined]="true" styleClass="break__flex" (onClick)="snooze()" />
+          <button type="button" class="actbtn actbtn--ghost" (click)="meeting()">
+            <i class="pi pi-calendar" aria-hidden="true"></i>{{ 'break.meeting' | t }}
+          </button>
+          <button type="button" class="actbtn actbtn--ghost" (click)="snooze()">
+            <i class="pi pi-clock" aria-hidden="true"></i>{{ 'break.snooze' | t }}
+          </button>
         </div>
-        <!-- row 2: skip = discard intent, ghost-danger -->
-        <p-button [label]="'break.skip' | t" [text]="true" severity="danger"
-                  styleClass="break__skip" (onClick)="skip()" />
         <!-- primary: done -->
-        <p-button [label]="'break.done' | t" icon="pi pi-check" size="large"
-                  styleClass="break__done" (onClick)="done()" />
+        <button type="button" class="actbtn actbtn--primary" (click)="done()">
+          <i class="pi pi-check" aria-hidden="true"></i>{{ 'break.done' | t }}
+        </button>
+        <!-- tertiary: skip = discard intent, subtle -->
+        <button type="button" class="actbtn actbtn--skip" (click)="skip()">{{ 'break.skip' | t }}</button>
       </div>
     </ng-template>
   }

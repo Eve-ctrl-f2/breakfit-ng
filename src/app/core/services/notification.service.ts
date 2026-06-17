@@ -7,8 +7,9 @@ import { MeetingService } from './meeting.service';
  * NotificationService — wraps the Web Notifications API with graceful
  * degradation. On mobile browsers, background notifications only fire when the
  * app is installed as a PWA; when they can't fire we fall back to a tab-title
- * cue (the 🔔 lives in the title bar — a different surface from system
- * notifications, which carry no emoji per the design rules).
+ * cue (a neutral dot marker in the title bar plus an app-icon badge — a
+ * different surface from system notifications, which carry no emoji per the
+ * design rules).
  */
 @Injectable({ providedIn: 'root' })
 export class NotificationService {

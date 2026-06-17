@@ -25,6 +25,7 @@ export class PlatformService {
   readonly installed = signal(false);
 
   readonly isIOS = detectIOS();
+  readonly isAndroid = detectAndroid();
   readonly isStandalone = signal(detectStandalone());
 
   readonly supportsServiceWorker = 'serviceWorker' in navigator;
@@ -38,6 +39,11 @@ export class PlatformService {
   /** iOS Safari, not yet installed → we must show the manual A2HS hint. */
   readonly showIosInstallHint = computed(
     () => this.isIOS && !this.isStandalone() && !this.installed(),
+  );
+
+  /** Android without a usable native prompt → show manual Chrome A2HS steps. */
+  readonly showAndroidInstallHint = computed(
+    () => this.isAndroid && !this.isStandalone() && !this.installed(),
   );
 
   constructor() {
@@ -78,6 +84,11 @@ function detectIOS(): boolean {
     /iPad|iPhone|iPod/.test(ua) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
   );
+}
+
+function detectAndroid(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  return /android/i.test(navigator.userAgent);
 }
 
 function detectStandalone(): boolean {

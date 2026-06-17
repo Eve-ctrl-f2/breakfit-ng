@@ -79,3 +79,61 @@ With the flag off, none of that code runs — no wasted network, no auth UI.
   bug; the UI surfaces an install hint on iOS.
 - **HTTPS is required** for service workers, notifications, and install. Static
   hosts above provide it automatically.
+
+## D. Production deploy — one host, HTTPS, real email
+
+Serves the PWA + API on **one origin** behind Caddy (automatic HTTPS), so testers get a
+stable, installable link. Any VPS/cloud VM with Docker + a domain works.
+Artifacts: `docker-compose.prod.yml` + `deploy/Caddyfile`.
+
+### 1. DNS + host
+- A VM (1 vCPU / 1 GB to start) with Docker + Docker Compose.
+- Point an A record (e.g. `app.example.com`) at the VM IP. Open ports 80 + 443.
+
+### 2. Production VAPID keys (don't reuse the local test pair)
+```
+npx web-push generate-vapid-keys
+```
+Public key → `src/environments/environment.production.ts` (`vapidPublicKey`), then rebuild.
+Both keys → the server `.env` (below).
+
+### 3. Mail provider (real login codes)
+Login is passwordless — the server emails a 6-digit code. Wire Resend:
+- Resend account → verify your sending domain → create an API key.
+- Set `EMAIL_PROVIDER=resend`, `RESEND_API_KEY=…`, `EMAIL_FROM="BreakFit <login@yourdomain>"`.
+Without these the server only logs the code (dev-only; not usable for testers).
+
+### 4. `.env` (next to `docker-compose.prod.yml`)
+```
+DOMAIN=app.example.com
+POSTGRES_PASSWORD=<strong-random>
+VAPID_PUBLIC_KEY=<prod public>
+VAPID_PRIVATE_KEY=<prod private>
+VAPID_SUBJECT=mailto:you@yourdomain
+EMAIL_PROVIDER=resend
+RESEND_API_KEY=<resend key>
+EMAIL_FROM=BreakFit <login@yourdomain>
+METRICS_TOKEN=<random; protects /metrics>
+```
+
+### 5. Build + run
+```
+npm run build
+docker compose -f docker-compose.prod.yml up -d --build
+```
+Caddy fetches a TLS cert on first request. Open `https://app.example.com` → install via
+"Add to Home Screen" (iOS 16.4+, Android). Login code arrives by email; push + weekly
+digest work.
+
+### 6. Verify
+- `docker compose -f docker-compose.prod.yml logs api` → `migrate: … applied`,
+  `Web Push enabled (VAPID configured)`, `digest scheduler started`.
+- `https://app.example.com/health` returns ok; `/metrics` needs the `METRICS_TOKEN` bearer.
+
+### Notes
+- Same origin → no CORS needed; `apiBase` stays `''` for web. The native build uses
+  `nativeApiBase` — set it to `https://app.example.com` when you ship native.
+- Update: `git pull && npm run build && docker compose -f docker-compose.prod.yml up -d --build`.
+- Backups: the `bf_pgdata` volume holds all user data — snapshot it regularly.
+- Managed alternative: split frontend (static host) + API (Fly.io/Render + managed
+  Postgres/Redis); then set `apiBase` to the API URL and `CORS_ORIGIN` to the web origin.

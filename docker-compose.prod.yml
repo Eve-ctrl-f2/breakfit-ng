@@ -1,0 +1,77 @@
+# BreakFit — production stack on ONE host: Postgres + Redis + API behind Caddy
+# (single origin, automatic HTTPS). Only Caddy is exposed publicly (80/443).
+#
+# Usage:
+#   npm run build                      # -> dist/breakfit/browser (Caddy serves it)
+#   DOMAIN=app.example.com docker compose -f docker-compose.prod.yml up -d --build
+#
+# Put secrets in a .env next to this file (see DEPLOYING.md section D):
+#   DOMAIN, POSTGRES_PASSWORD, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT,
+#   EMAIL_PROVIDER=resend, RESEND_API_KEY, EMAIL_FROM, METRICS_TOKEN
+#
+# The api applies pending migrations on start. CORS isn't needed (same origin).
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: breakfit
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-breakfit}
+      POSTGRES_DB: breakfit
+    volumes:
+      - "bf_pgdata:/var/lib/postgresql/data"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U breakfit"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - "bf_redisdata:/data"
+    restart: unless-stopped
+
+  api:
+    build: ./server
+    environment:
+      PORT: 8080
+      NODE_ENV: production
+      DATABASE_URL: postgres://breakfit:${POSTGRES_PASSWORD:-breakfit}@db:5432/breakfit
+      REDIS_URL: redis://redis:6379
+      EMAIL_PROVIDER: ${EMAIL_PROVIDER:-resend}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      EMAIL_FROM: ${EMAIL_FROM:-BreakFit <login@breakfit.app>}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      METRICS_TOKEN: ${METRICS_TOKEN:-}
+      VAPID_PUBLIC_KEY: ${VAPID_PUBLIC_KEY:-}
+      VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
+      VAPID_SUBJECT: ${VAPID_SUBJECT:-mailto:feedback@breakfit.app}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  caddy:
+    image: caddy:2-alpine
+    environment:
+      DOMAIN: ${DOMAIN:?set DOMAIN to your public hostname}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "./deploy/Caddyfile:/etc/caddy/Caddyfile:ro"
+      - "./dist/breakfit/browser:/srv:ro"
+      - "caddy_data:/data"
+      - "caddy_config:/config"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  bf_pgdata:
+  bf_redisdata:
+  caddy_data:
+  caddy_config:

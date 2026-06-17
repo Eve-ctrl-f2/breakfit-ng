@@ -9,6 +9,12 @@
     <li>{{ 'install.iosStep1' | t }}</li>
     <li>{{ 'install.iosStep2' | t }}</li>
   </ol>
+} @else if (platform.showAndroidInstallHint()) {
+  <p class="muted install__txt">{{ 'install.androidHint' | t }}</p>
+  <ol class="install__steps muted">
+    <li>{{ 'install.androidStep1' | t }}</li>
+    <li>{{ 'install.androidStep2' | t }}</li>
+  </ol>
 } @else {
   <p class="muted install__txt">{{ 'install.unavailable' | t }}</p>
 }

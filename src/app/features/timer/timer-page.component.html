@@ -18,7 +18,7 @@
       [ngModel]="dialValue()"
       [max]="100" [min]="0" [size]="240" [strokeWidth]="6"
       [readonly]="true" [showValue]="false"
-      valueColor="var(--accent)" rangeColor="var(--border-2)"
+      [valueColor]="ringColor()" rangeColor="var(--border-2)"
       aria-hidden="true"
     />
     <div class="timer__readout mono" role="timer"
@@ -37,10 +37,10 @@
     } @else if (state().running) {
       <p-button [label]="'timer.pause' | t" icon="pi pi-pause" size="large"
                 severity="secondary" styleClass="timer__pause" (onClick)="timer.pause()" />
-      <p-button [label]="'timer.stop' | t" icon="pi pi-stop" [text]="true" severity="danger" (onClick)="timer.reset()" />
+      <p-button [label]="'timer.stop' | t" icon="pi pi-stop" [text]="true" severity="secondary" (onClick)="stop()" />
     } @else {
       <p-button [label]="'timer.resume' | t" icon="pi pi-play" size="large" (onClick)="timer.resume()" />
-      <p-button [label]="'timer.stop' | t" icon="pi pi-stop" [text]="true" severity="danger" (onClick)="timer.reset()" />
+      <p-button [label]="'timer.stop' | t" icon="pi pi-stop" [text]="true" severity="secondary" (onClick)="stop()" />
     }
   </div>
 

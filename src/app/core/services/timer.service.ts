@@ -74,6 +74,19 @@ export class TimerService {
     this._state.set(INITIAL_TIMER_STATE);
   }
 
+  /** Restore a snapshot (for "undo stop"). Re-arms ticking if it was running. */
+  restore(snapshot: TimerState): void {
+    this.stopTicking();
+    if (snapshot.running) {
+      // re-seat as paused at the captured remaining, then resume() recomputes
+      // startedAt against the wall clock and restarts ticking.
+      this._state.set({ ...snapshot, running: false, startedAt: null });
+      this.resume();
+    } else {
+      this._state.set(snapshot);
+    }
+  }
+
   /** Called when the user finishes/skips a break — advances the cycle. */
   completeBreak(): void {
     this._state.update((s) => ({ ...s, cyclesCompleted: s.cyclesCompleted + 1 }));

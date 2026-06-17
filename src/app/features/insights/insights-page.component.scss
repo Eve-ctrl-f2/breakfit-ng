@@ -2,6 +2,7 @@
 .stat { background: var(--surface-1); border: 1px solid var(--border-1); border-radius: var(--radius);
         padding: var(--s-3); text-align: center; display: flex; flex-direction: column; gap: 4px; }
 .stat__num { font-size: 2rem; font-weight: 700; color: var(--accent); }
+.stat__num--empty { color: var(--text-3); }
 .stat__lbl { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; }
 :host ::ng-deep .ins-card { margin-bottom: var(--s-3); }
 .ins-card__head { display: flex; justify-content: space-between; align-items: center; }

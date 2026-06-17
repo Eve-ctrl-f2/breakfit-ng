@@ -9,7 +9,7 @@
                border: 1px solid var(--accent-25); border-radius: 999px; padding: 4px 10px; }
 :host ::ng-deep .goal__bar { border-radius: 999px; }
 :host ::ng-deep .goal__bar .p-progressbar-value { background: var(--accent); border-radius: 999px; }
-:host ::ng-deep .goal__bar.p-progressbar { background: var(--surface-3); height: 6px; }
+:host ::ng-deep .goal__bar.p-progressbar { background: var(--surface-3); height: 10px; }
 .goal__target { display: flex; justify-content: space-between; align-items: center; }
 .goal__stepper { display: flex; align-items: center; gap: var(--s-2); }
 .goal__step { background: var(--surface-2); border: 1px solid var(--border-2); color: var(--text-1);

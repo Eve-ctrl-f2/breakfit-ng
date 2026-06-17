@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@angular/build": "^21.2.0",
-    "@angular/cli": "^21.2.0",
+    "@angular/cli": "^22.0.2",
     "@angular/compiler-cli": "^21.2.0",
     "@capacitor/cli": "^8.4.0",
     "@csstools/css-tokenizer": "^4.0.0",

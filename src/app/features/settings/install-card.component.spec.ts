@@ -13,6 +13,7 @@ describe('InstallCardComponent', () => {
           installed: signal(false),
           canInstall: signal(false),
           showIosInstallHint: signal(false),
+          showAndroidInstallHint: signal(false),
           promptInstall: async () => undefined,
         },
       },

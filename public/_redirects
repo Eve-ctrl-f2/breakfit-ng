@@ -1,8 +1,8 @@
 # Proxy the API and health check to the backend so the browser stays on ONE
 # origin (no CORS; apiBase stays ''). Replace the host with your Render URL,
 # then `npm run build` and re-deploy.
-/v1/*    https://YOUR-API.onrender.com/v1/:splat   200
-/health  https://YOUR-API.onrender.com/health      200
+/v1/*    https://breakfit.onrender.com/v1/:splat   200
+/health  https://breakfit.onrender.com/health      200
 
 # SPA fallback — must stay last.
 /*       /index.html                               200

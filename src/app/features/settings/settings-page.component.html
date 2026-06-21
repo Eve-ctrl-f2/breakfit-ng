@@ -164,28 +164,9 @@
     <p class="muted set__hint">{{ 'settings.healthHint' | t }}</p>
   </p-card>
 
-  <!-- Cloud sync — only when flag is on -->
-  @if (cloudEnabled) {
-    <p-card styleClass="set-card">
-      <p class="set__h">{{ 'settings.cloud' | t }}</p>
-      @if (!auth.isAuthed()) {
-        <p class="muted set__hint">{{ 'settings.cloudHint' | t }}</p>
-        <div class="set__cta">
-          <p-button [label]="'settings.signin' | t" icon="pi pi-cloud" routerLink="/auth/login" />
-        </div>
-      } @else {
-        <p class="muted set__hint">{{ auth.user()?.email }}</p>
-        <div class="set__cloud-actions">
-          <p-button [label]="'settings.export' | t" icon="pi pi-download"
-                    [outlined]="true" size="small" (onClick)="exportData()" />
-          <p-button [label]="'settings.logout' | t" icon="pi pi-sign-out"
-                    [text]="true" severity="secondary" size="small" (onClick)="auth.logout()" />
-          <p-button [label]="'settings.logoutAll' | t" icon="pi pi-power-off"
-                    [text]="true" severity="danger" size="small" (onClick)="auth.logoutAllDevices()" />
-        </div>
-      }
-    </p-card>
-  }
+  <!-- Cloud sync / sign-in hidden from the UI for the test phase: without a
+       verified email domain the login flow is unusable for testers. The auth
+       service, routes and i18n stay in place — re-add this card to restore it. -->
 
   <!-- Install / PWA -->
   <p-card styleClass="set-card">
@@ -193,12 +174,7 @@
     <bf-install-card />
   </p-card>
 
-  <!-- Feedback -->
-  <p-card styleClass="set-card">
-    <p class="set__h">{{ 'settings.feedback' | t }}</p>
-    <p-button [label]="'settings.sendFeedback' | t" icon="pi pi-envelope" [outlined]="true"
-              (onClick)="sendFeedback()" />
-  </p-card>
+  <!-- Feedback (email) hidden for the test phase — no live address yet. -->
 
   <!-- About -->
   <footer class="about muted">

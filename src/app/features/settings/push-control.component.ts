@@ -17,6 +17,7 @@ import { environment } from '@env/environment';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FormsModule, ToggleSwitchModule, ButtonModule, TPipe],
   templateUrl: './push-control.component.html',
+  styleUrl: './push-control.component.scss',
 })
 export class PushControlComponent {
   readonly push = inject(PushService);

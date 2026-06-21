@@ -1,0 +1,34 @@
+/* push-control is its own component, so the settings page's .set__toggle rules
+   don't reach it (view encapsulation). Replicate the toggle-row layout here so
+   the label and switch sit on one line, right-aligned, with proper spacing. */
+.set__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+  padding: 8px 0;
+  font-size: 0.9rem;
+  color: var(--text-1);
+}
+/* label takes the remaining width and may wrap; the switch keeps its size */
+.set__toggle > span {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.set__toggle > p-toggleswitch {
+  flex: 0 0 auto;
+}
+
+/* dev test buttons */
+.set__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin-top: var(--s-2);
+}
+
+.set__hint {
+  font-size: 0.8rem;
+  margin: var(--s-2) 0 0;
+  color: var(--text-2);
+}
